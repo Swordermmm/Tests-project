@@ -9,6 +9,7 @@ import IUser from "./types/index";
 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
+import MainPage from "./pages/MainPage/MainPage";
 
 import EventBus from "./components/base/Events";
 
@@ -35,15 +36,12 @@ function App() {
   };
 
   return (
-    <div>
-      <div className="container mt-3">
-        <Routes>
-          <Route path="/" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </div>
-    </div>
+    <Routes>
+      <Route path="/" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/main" element={<MainPage />} />
+    </Routes>
   );
 }
 

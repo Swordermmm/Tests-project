@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
-import { Link } from "react-router-dom";
 import * as Yup from "yup";
+
+import { Button } from "../UI";
 
 import IUser from "../../types/index";
 import { register } from "../../apis/auth.api";
@@ -52,73 +53,75 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="col-md-12">
-      <div className="card card-container">
-        <label className="title">Регистрация</label>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleRegister}
-        >
-          <Form>
-            {!successful && (
-              <div>
-                <div className="form-group">
-                  <label htmlFor="email" className="form-label">
-                    Логин
-                  </label>
-                  <Field name="email" type="email" className="form-control" />
-                  <ErrorMessage
-                    name="email"
-                    component="div"
-                    className="alert alert-danger"
-                  />
-                </div>
+    <div className="container mt-3">
+      <div className="col-md-12">
+        <div className="card card-container">
+          <label className="title">Регистрация</label>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleRegister}
+          >
+            <Form>
+              {!successful && (
+                <div>
+                  <div className="form-group">
+                    <label htmlFor="email" className="form-label">
+                      Логин
+                    </label>
+                    <Field name="email" type="email" className="form-control" />
+                    <ErrorMessage
+                      name="email"
+                      component="div"
+                      className="alert alert-danger"
+                    />
+                  </div>
 
-                <div className="form-group">
-                  <label htmlFor="password" className="form-label">
-                    Пароль
-                  </label>
-                  <Field
-                    name="password"
-                    type="password"
-                    className="form-control"
-                  />
-                  <ErrorMessage
-                    name="password"
-                    component="div"
-                    className="alert alert-danger"
-                  />
-                </div>
+                  <div className="form-group">
+                    <label htmlFor="password" className="form-label">
+                      Пароль
+                    </label>
+                    <Field
+                      name="password"
+                      type="password"
+                      className="form-control"
+                    />
+                    <ErrorMessage
+                      name="password"
+                      component="div"
+                      className="alert alert-danger"
+                    />
+                  </div>
 
-                <div className="form-group">
-                  <button type="submit" className="auth-btn">
-                    Регистрация
-                  </button>
-                </div>
+                  <div className="form-group">
+                    <Button type="submit" className="auth-btn">
+                      Регистрация
+                    </Button>
+                  </div>
 
-                <div className="form-group">
-                  <Link to={"/login"} className="auth-btn">
-                    Войти
-                  </Link>
+                  <div className="form-group">
+                    <Button to={"/login"} className="auth-btn">
+                      Войти
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {message && (
-              <div className="form-group">
-                <div
-                  className={
-                    successful ? "alert alert-success" : "alert alert-danger"
-                  }
-                  role="alert"
-                >
-                  {message}
+              {message && (
+                <div className="form-group">
+                  <div
+                    className={
+                      successful ? "alert alert-success" : "alert alert-danger"
+                    }
+                    role="alert"
+                  >
+                    {message}
+                  </div>
                 </div>
-              </div>
-            )}
-          </Form>
-        </Formik>
+              )}
+            </Form>
+          </Formik>
+        </div>
       </div>
     </div>
   );
