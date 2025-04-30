@@ -12,9 +12,9 @@ const logout = () => {
 
 const links = {
   navLinks: [
-    { label: "Мои тесты", to: "/tests" },
+    { label: "Мои тесты", to: "/main" },
     { label: "Ручная проверка", to: "/check" },
-    { label: "Статистика", to: "/statistics" },
+    { label: "Статистика", to: "/stats" },
   ],
 };
 

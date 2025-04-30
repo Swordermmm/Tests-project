@@ -52,7 +52,7 @@ const Login: React.FC<Props> = () => {
   };
 
   return (
-    <div className="container mt-3">
+    <div className="container">
       <div className="col-md-12">
         <div className="card card-container">
           <label className="title">Авторизация</label>

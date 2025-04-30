@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 
 import { Button } from "../UI";
@@ -8,6 +9,8 @@ import IUser from "../../types/index";
 import { register } from "../../apis/auth.api";
 
 const Register: React.FC = () => {
+  let navigate: NavigateFunction = useNavigate();
+
   const [successful, setSuccessful] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
@@ -37,6 +40,8 @@ const Register: React.FC = () => {
       (response) => {
         setMessage(response.data.message);
         setSuccessful(true);
+        navigate("/login");
+        window.location.reload();
       },
       (error) => {
         const resMessage =
@@ -53,7 +58,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="container mt-3">
+    <div className="container">
       <div className="col-md-12">
         <div className="card card-container">
           <label className="title">Регистрация</label>

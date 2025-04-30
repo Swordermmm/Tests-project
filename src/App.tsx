@@ -10,6 +10,7 @@ import IUser from "./types/index";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import MainPage from "./pages/MainPage/MainPage";
+import Stats from "./pages/Stats/Stats";
 
 import EventBus from "./components/base/Events";
 
@@ -41,6 +42,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/main" element={<MainPage />} />
+      <Route path="/stats" element={<Stats />} />
     </Routes>
   );
 }

@@ -3,4 +3,13 @@ export default interface IUser {
     email: string,
     password: string,
     roles?: Array<string>
-  }
+};
+
+// interface ISubjectFilter {
+//   name: string;
+//   email: string;
+//   test: string;
+//   result: "Прошёл" | "Не прошёл";
+//   score: number;
+//   percentage: `${number}%` | number;
+// }
