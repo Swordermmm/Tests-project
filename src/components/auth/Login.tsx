@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, FC } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -10,7 +10,7 @@ import "./Auth.module.scss";
 
 type Props = {};
 
-const Login: React.FC<Props> = () => {
+const Login: FC<Props> = () => {
   let navigate: NavigateFunction = useNavigate();
 
   const [message, setMessage] = useState<string>("");

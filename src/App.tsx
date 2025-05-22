@@ -11,6 +11,7 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import MainPage from "./pages/MainPage/MainPage";
 import Stats from "./pages/Stats/Stats";
+import { TestConstructor } from "./pages/TestConstructor/TestConstructor";
 
 import EventBus from "./components/base/Events";
 
@@ -43,6 +44,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/main" element={<MainPage />} />
       <Route path="/stats" element={<Stats />} />
+      <Route path="/form:id" element={<TestConstructor />} />
     </Routes>
   );
 }

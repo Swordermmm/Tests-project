@@ -15,7 +15,9 @@ const MainPage: FC = () => {
       <Header />
       <div className={styles["title"]}>Главная страница</div>
       <div className={styles["main"]}>
-        <Button className={styles["create-btn"]}>Создать тест</Button>
+        <Button className={styles["create-btn"]} to="/form/:id">
+          Создать тест
+        </Button>
       </div>
       <Outlet />
     </>

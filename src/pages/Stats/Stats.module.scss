@@ -1,6 +1,8 @@
 .stats-container {
   min-height: 100vh;
   background-color: #EEEEEE;
+  font-weight: bold;
+  font-family: "Playfair Display";
 }
 
 
@@ -14,6 +16,7 @@
     font-size: 30px;
     width: 100%;
     font-family: "Playfair Display";
+    font-weight: bold;
 }
 
 .main {
@@ -51,6 +54,7 @@
     border: transparent;
     margin-right: 20px;
     height: 4vh;
+
   }
 
   select {
@@ -59,6 +63,7 @@
     color: #357546;
     border: transparent;
     height: 4vh;
+    font-family: "Playfair Display";
   }
 
   .name {
