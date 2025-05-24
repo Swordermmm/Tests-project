@@ -37,19 +37,28 @@ function FormRenderer({ formData, id, setShowResponse }: FormRendererProps) {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const responsesWithMeta = formResponses.map((answer, index) => {
+    const responseAnswers = formResponses.map((answer, index) => {
       const question = formData.find((form) => form.id === id)?.questions[
         index
       ];
       return {
         questionText: question?.questionText,
         answerType: question?.answerType,
-        formId: id,
         answer,
+        options: question?.options,
       };
     });
-    console.log(responsesWithMeta);
-    localStorage.setItem("formResponse", JSON.stringify(responsesWithMeta));
+
+    const formResponse = {
+      title: formData[0].title,
+      desc: formData[0].desc,
+      id: formData[0].id,
+      answers: responseAnswers,
+    };
+
+    console.log(formResponse);
+
+    localStorage.setItem("formResponse", JSON.stringify(formResponse));
   };
 
   const filteredData = formData.find((form) => form.id === id);

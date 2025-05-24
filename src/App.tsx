@@ -11,6 +11,8 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import MainPage from "./pages/MainPage/MainPage";
 import Stats from "./pages/Stats/Stats";
+import CheckPage from "./pages/CheckPage/CheckPage";
+import CheckForm from "./pages/CheckForm/CheckForm";
 import { TestConstructor } from "./pages/TestConstructor/TestConstructor";
 
 import EventBus from "./components/base/Events";
@@ -44,7 +46,9 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/main" element={<MainPage />} />
       <Route path="/stats" element={<Stats />} />
-      <Route path="/form:id" element={<TestConstructor />} />
+      <Route path="/form/:id" element={<TestConstructor />} />
+      <Route path="/check/" element={<CheckPage />} />
+      <Route path="/check/:id" element={<CheckForm />} />
     </Routes>
   );
 }
