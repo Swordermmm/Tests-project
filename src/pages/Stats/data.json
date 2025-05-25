@@ -2,41 +2,17 @@
     {
       "name": "Иван Иванов Иванович1",
       "email": "test1@test.com",
-      "test": "Проверка статистики",
+      "title": "Проверка статистики",
       "result": "Прошёл",
-      "score": "9",
+      "scoreToPass": "9",
       "percentage": "90"
     },
     {
-      "name": "Иван Иванов Иванович2",
+      "name": "Иван Иванов Иванович1",
       "email": "test2@test.com",
-      "test": "Проверка статистики",
+      "title": "Проверка статистики",
       "result": "Прошёл",
-      "score": "7",
-      "percentage": "70"
-    },
-    {
-      "name": "Иван Иванов Иванович3",
-      "email": "test3@test.com",
-      "test": "Проверка статистики",
-      "result": "Не прошёл",
-      "score": "3",
-      "percentage": "30"
-    },
-    {
-      "name": "Иван Иванов Иванович4",
-      "email": "test4@test.com",
-      "test": "Проверка вас",
-      "result": "Прошёл",
-      "score": "6",
-      "percentage": "60"
-    },
-    {
-      "name": "Иван Иванов Иванович5",
-      "email": "test5@test.com",
-      "test": "Проверка вас",
-      "result": "Не прошёл",
-      "score": "1",
-      "percentage": "10"
+      "scoreToPass": "9",
+      "percentage": "90"
     }
 ]

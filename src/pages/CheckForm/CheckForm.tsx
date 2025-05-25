@@ -4,21 +4,6 @@ import { Timer } from "../../components/UI";
 
 import styles from "./CheckForm.module.scss";
 
-interface Answer {
-  id: string;
-  questionText: string;
-  answerType: string;
-  answer: string;
-  options?: string[];
-}
-
-interface responseData {
-  title: string;
-  desc: string;
-  id: string | undefined;
-  questions: Answer[];
-}
-
 const CheckForm: FC = () => {
   const params = useParams();
   const [values, setValues] = useState<number[]>([]);
@@ -49,8 +34,10 @@ const CheckForm: FC = () => {
       id: filteredData.id,
       score: score,
       isChecked: true,
+      scoreToPass: filteredData.scoreToPass,
+      answers: filteredData.answers,
     };
-    localStorage.setItem("checkedResponse", JSON.stringify(checkedResponse));
+    localStorage.setItem("formResponse", JSON.stringify(checkedResponse));
     navigate("/check");
   };
 
@@ -69,7 +56,6 @@ const CheckForm: FC = () => {
           <div className={styles["form-desc"]}>
             Описание: {filteredData?.desc}
           </div>
-          <Timer time={600}></Timer>
         </div>
         {filteredData?.answers?.map((answer: any, index: any) => (
           <div className={styles["question-container"]}>
@@ -79,10 +65,12 @@ const CheckForm: FC = () => {
             <hr />
             <div className={styles["question-options"]}>
               <div>
-                {answer.answerType === "input" && (
+                {(answer.answerType === "input" ||
+                  "input-short" ||
+                  "input-number") && (
                   <input type="text" value={answer.answer} disabled></input>
                 )}
-                {answer.answerType === "radio" &&
+                {(answer.answerType === "radio" || "checkbox") &&
                   answer.options?.map((option: any) => (
                     <div className={styles["option-container"]}>
                       {answer.answer === option ? (
@@ -138,9 +126,9 @@ const CheckForm: FC = () => {
         </label>
         <label>Статус: Прошёл</label>
         <hr />
-        <label>
+        <div className={styles["submit-container"]}>
           <input type="submit" value="Закончить проверку" />
-        </label>
+        </div>
       </form>
     </div>
   );

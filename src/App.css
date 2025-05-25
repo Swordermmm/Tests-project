@@ -23,12 +23,15 @@ label, button, a {
 
 .title {
   font-size: 40px;
+  height: 60px;
   font-weight: bold;
   color: #357546;
   margin-top: 0;
 }
 
 .form-label {
+  margin-top: 20px;
+  margin-bottom: 0;
   font-weight: bold;
   font-size: 16px;
   color: #357546;
@@ -55,7 +58,7 @@ label, button, a {
 
 .card {
   margin: 0 auto 25px;
-  margin-top: 50px;
+  margin-top: 10px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
   border-radius: 2px;

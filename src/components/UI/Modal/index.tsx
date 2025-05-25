@@ -1,28 +1,27 @@
-interface ModalProps {
-  name?: string;
-  closeButtontext: string;
+import styles from "./Modal.module.scss";
+import CloseIcon from "../../../assets/close-icon.svg";
+
+import React, { ReactNode } from "react";
+
+interface ModalType {
+  children?: ReactNode;
   isOpen: boolean;
-  onClose: () => void;
-  children: any;
+  toggle: () => void;
 }
 
-export default function Modal(props: ModalProps): ReturnType<React.FC> {
+export function Modal(props: ModalType) {
   return (
     <div
-      className={`${"modal"} ${
-        props.isOpen ? "display-block" : "display-none"
+      className={`${styles["modal"]} ${
+        props.isOpen ? styles["display-block"] : styles["display-none"]
       }`}
     >
-      <div className="modal-main">
-        <div className="modal-head">
-          <h1>{props.name}</h1>
-        </div>
-        <div className="modal-body">{props.children}</div>
-        <div className="btn-container">
-          <button type="button" className="btn" onClick={props.onClose}>
-            {props.closeButtontext}
-          </button>
-        </div>
+      <div className={styles["modal-main"]}>
+        <button className={styles["close-button"]} onClick={props.toggle}>
+          <CloseIcon />
+        </button>
+        <hr></hr>
+        <div className={styles["modal-box"]}>{props.children}</div>
       </div>
     </div>
   );

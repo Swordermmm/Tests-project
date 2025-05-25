@@ -2,7 +2,6 @@ import { Header } from "../../components/Header";
 import { FC } from "react";
 import { useState, useEffect } from "react";
 
-import data from "./data.json";
 import styles from "./Stats.module.scss";
 
 const headers = [
@@ -20,18 +19,52 @@ const Stats: FC = () => {
 
   const [name, setName]: [string, (name: string) => void] = useState("");
   const [email, setEmail]: [string, (email: string) => void] = useState("");
-  const [test, setTest]: [string, (test: string) => void] = useState("");
+  const [title, setTest]: [string, (test: string) => void] = useState("");
   const [score, setScore]: [string, (score: string) => void] = useState("");
   const [percentage, setPercentage]: [string, (percentage: string) => void] =
     useState("");
   const [result, setResult]: [string, (result: string) => void] =
     useState("Прошёл");
 
-  const [filteredSubjects, setFilters] = useState(data);
+  const responseData = JSON.parse(localStorage.getItem("formResponse") || '""');
+
+  const newResult = () => {
+    let word: string;
+    if (
+      responseData.isChecked &&
+      responseData.score >= responseData.scoreToPass
+    ) {
+      word = "Прошёл";
+    } else {
+      word = "Не прошёл";
+    }
+    return word;
+  };
+
+  let newscore: number;
+  let newresult = newResult();
+  if (responseData) {
+    newscore = (responseData.score / responseData.answers.length) * 100;
+  } else {
+    newscore = 0;
+  }
+
+  let filteredAnswers = [
+    {
+      name: "placeholder",
+      email: "placeholder",
+      title: responseData.title,
+      result: newresult,
+      score: responseData.score,
+      percentage: `${newscore}`,
+    },
+  ];
+
+  const [filteredSubjects, setFilters] = useState(filteredAnswers);
 
   useEffect(() => {
-    if (data.length > 0) {
-      let filteredData = [...data];
+    if (filteredAnswers.length > 0) {
+      let filteredData = [...filteredAnswers];
       if (name) {
         filteredData = filteredData.filter((subject) =>
           subject.name.toLowerCase().includes(name.toLowerCase())
@@ -42,9 +75,9 @@ const Stats: FC = () => {
           subject.email.toLowerCase().includes(email.toLowerCase())
         );
       }
-      if (test) {
+      if (title) {
         filteredData = filteredData.filter((subject) =>
-          subject.test.toLowerCase().includes(test.toLowerCase())
+          subject.title.toLowerCase().includes(title.toLowerCase())
         );
       }
       if (score) {
@@ -70,7 +103,7 @@ const Stats: FC = () => {
       }
       setFilters(filteredData);
     }
-  }, [data, name, email, test, score, percentage, result]);
+  }, [name, email, title, score, percentage, result]);
 
   return (
     <div className={styles["stats-container"]}>
@@ -113,7 +146,7 @@ const Stats: FC = () => {
             <label>Название теста</label>
             <input
               type="text"
-              value={test}
+              value={title}
               className={styles["input-el test"]}
               onChange={(e) => setTest(e.target.value)}
             ></input>
@@ -152,7 +185,7 @@ const Stats: FC = () => {
               <tr>
                 <td>{subject.name}</td>
                 <td>{subject.email}</td>
-                <td>{subject.test}</td>
+                <td>{subject.title}</td>
                 <td>{subject.result}</td>
                 <td>{subject.score}</td>
                 <td>{subject.percentage}%</td>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FormControl,
   FormControlLabel,
@@ -8,6 +9,7 @@ import {
   FormGroup,
   TextField,
   Button,
+  Checkbox,
 } from "@mui/material";
 
 import styles from "./TestConstructor.module.scss";
@@ -23,6 +25,7 @@ interface FormData {
   title: string;
   desc: string;
   id: string | undefined;
+  scoreToPass: number;
   questions: Question[];
 }
 
@@ -34,6 +37,7 @@ interface FormRendererProps {
 
 function FormRenderer({ formData, id, setShowResponse }: FormRendererProps) {
   const [formResponses, setFormResponses] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,11 +58,16 @@ function FormRenderer({ formData, id, setShowResponse }: FormRendererProps) {
       desc: formData[0].desc,
       id: formData[0].id,
       answers: responseAnswers,
+      isChecked: false,
+      scoreToPass: formData[0].scoreToPass,
+      score: 0,
     };
 
     console.log(formResponse);
 
     localStorage.setItem("formResponse", JSON.stringify(formResponse));
+    navigate("/check");
+    window.location.reload();
   };
 
   const filteredData = formData.find((form) => form.id === id);
@@ -106,6 +115,26 @@ function FormRenderer({ formData, id, setShowResponse }: FormRendererProps) {
                       value={formResponses[index] || ""}
                       onChange={(e) => handleResponseChange(index, e)}
                     />
+                  )}
+                  {question.answerType === "checkbox" && (
+                    <FormGroup>
+                      {question.options?.map((option, optionIndex) => (
+                        <FormControlLabel
+                          key={optionIndex}
+                          control={
+                            <Checkbox
+                              checked={
+                                formResponses[index]?.includes(option) || false
+                              }
+                              onChange={(e) => handleResponseChange(index, e)}
+                              name={`checkbox-${index}`}
+                              value={option}
+                            />
+                          }
+                          label={option}
+                        />
+                      ))}
+                    </FormGroup>
                   )}
                   {question.answerType === "input" && (
                     <TextField
@@ -159,22 +188,3 @@ function FormRenderer({ formData, id, setShowResponse }: FormRendererProps) {
 }
 
 export default FormRenderer;
-
-// {question.answerType === "checkbox" && (
-//   <FormGroup>
-//     {question.options?.map((option, optionIndex) => (
-//       <FormControlLabel
-//         key={optionIndex}
-//         control={
-//           <Checkbox
-//             checked={formResponses[index]?.includes(option) || false}
-//             onChange={(e) => handleResponseChange(index, e)}
-//             name={`checkbox-${index}`}
-//             value={option}
-//           />
-//         }
-//         label={option}
-//       />
-//     ))}
-//   </FormGroup>
-// )}

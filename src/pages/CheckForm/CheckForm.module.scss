@@ -29,7 +29,7 @@
 }
 
 input {
-  width: 500px;
+  width: 400px;
   height: 60px;
   background-color: white;
   color: black;
@@ -103,4 +103,9 @@ label {
 
 hr {
   border: 1px solid;
+}
+
+.submit-container {
+  display: flex;
+  justify-content: center;
 }
