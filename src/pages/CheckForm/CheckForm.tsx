@@ -10,6 +10,7 @@ const CheckForm: FC = () => {
   const [score, setScore] = useState<number>(0);
   const navigate = useNavigate();
 
+  // Для отображения общего балла
   useEffect(() => {
     const sumValues = Object.values(values);
     const sum = sumValues.reduce((accumulator, value) => {
@@ -18,6 +19,7 @@ const CheckForm: FC = () => {
     setScore(sum);
   }, [values, score]);
 
+  //Функция отвечает за все значения проверки
   const handleCorrectChange = (number: string, id: any) => {
     let name = id;
     let value = parseInt(number);
@@ -28,11 +30,14 @@ const CheckForm: FC = () => {
     setValues(newValues);
   };
 
+  // Отвечает за сохранение проверки
   const handleCheckSubmit: any = (e: any) => {
     e.preventDefault();
     const checkedResponse = {
       id: filteredData.id,
       score: score,
+      title: filteredData.title,
+      desc: filteredData.desc,
       isChecked: true,
       scoreToPass: filteredData.scoreToPass,
       answers: filteredData.answers,
@@ -41,6 +46,7 @@ const CheckForm: FC = () => {
     navigate("/check");
   };
 
+  // Данные ответов на тест
   const responseData = [
     JSON.parse(localStorage.getItem("formResponse") || '""'),
   ];
@@ -65,9 +71,13 @@ const CheckForm: FC = () => {
             <hr />
             <div className={styles["question-options"]}>
               <div>
-                {(answer.answerType === "input" ||
-                  "input-short" ||
-                  "input-number") && (
+                {answer.answerType === "input" && (
+                  <input type="text" value={answer.answer} disabled></input>
+                )}
+                {answer.answerType === "input-number" && (
+                  <input type="text" value={answer.answer} disabled></input>
+                )}
+                {answer.answerType === "input-short" && (
                   <input type="text" value={answer.answer} disabled></input>
                 )}
                 {(answer.answerType === "radio" || "checkbox") &&
@@ -124,7 +134,9 @@ const CheckForm: FC = () => {
         <label>
           Баллы: {score}/{filteredData.answers.length}
         </label>
-        <label>Статус: Прошёл</label>
+        <label>
+          Статус: {score >= filteredData.scoreToPass ? "Прошёл" : "Не прошёл"}
+        </label>
         <hr />
         <div className={styles["submit-container"]}>
           <input type="submit" value="Закончить проверку" />
