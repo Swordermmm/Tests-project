@@ -1,149 +1,179 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { FC, useEffect, useState } from "react";
-import { Timer } from "../../components/UI";
+import { ITest } from "../Test/formRender";
 
 import styles from "./CheckForm.module.scss";
 
 const CheckForm: FC = () => {
   const params = useParams();
-  const [values, setValues] = useState<number[]>([]);
-  const [score, setScore] = useState<number>(0);
+  const [mark, setMark] = useState<number>(0);
+  const [checks, setChecks] = useState<[]>([]);
+  const [form, setForm] = useState<ITest>({
+    isActive: true,
+    manualCheck: false,
+    title: "",
+    description: "",
+    startAt: "",
+    endAt: "",
+    scoreToPass: 0,
+    timerInSeconds: 0,
+    questions: [
+      { id: "", testId: "", questionText: "", type: "", answers: {} },
+    ],
+  });
+  const [loading, isLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
-  // Для отображения общего балла
+  async function getTest() {
+    try {
+      const response = await fetch(
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/UserGetTest/${params.id}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          setForm(json);
+        });
+      return response;
+    } catch (error) {
+      console.log(error);
+      return "";
+    } finally {
+    }
+  }
+
+  async function getManualChecks() {
+    try {
+      const response = await fetch(
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/ManualCheck/${params.id}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => setChecks(data));
+      return response;
+    } catch (error) {
+      console.log(error);
+      return "";
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  async function postManualChecks(checkedResponse: any) {
+    try {
+      const response = await fetch(
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/ManualCheck/${params.id}`,
+        {
+          method: "Post",
+          credentials: "include",
+          body: JSON.stringify(checkedResponse),
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+      return "";
+    }
+  }
+
   useEffect(() => {
-    const sumValues = Object.values(values);
-    const sum = sumValues.reduce((accumulator, value) => {
-      return accumulator + value;
-    }, 0);
-    setScore(sum);
-  }, [values, score]);
+    getTest();
+    getManualChecks();
+  }, []);
 
   //Функция отвечает за все значения проверки
   const handleCorrectChange = (number: string, id: any) => {
-    let name = id;
-    let value = parseInt(number);
-    const newValues = {
-      ...values,
-      [name]: value,
-    };
-    setValues(newValues);
+    setMark((prevMark) => (prevMark = Number(number)));
   };
 
   // Отвечает за сохранение проверки
   const handleCheckSubmit: any = (e: any) => {
     e.preventDefault();
     const checkedResponse = {
-      id: filteredData.id,
-      score: score,
-      title: filteredData.title,
-      desc: filteredData.desc,
-      isChecked: true,
-      scoreToPass: filteredData.scoreToPass,
-      answers: filteredData.answers,
+      userId: checks[0].userid,
+      markedQuestions: [
+        {
+          questionId: checks[0].questionToCheckDtos[0].questionId,
+          mark: mark,
+        },
+      ],
     };
-    localStorage.setItem("formResponse", JSON.stringify(checkedResponse));
+    postManualChecks([checkedResponse]);
+    console.log(checkedResponse);
     navigate("/check");
   };
-
-  // Данные ответов на тест
-  const responseData = [
-    JSON.parse(localStorage.getItem("formResponse") || '""'),
-  ];
-  const filteredData = responseData.find(
-    (response) => response.id === params.id
-  );
-
-  return (
-    <div className={styles["wrapper"]}>
-      <form onSubmit={handleCheckSubmit}>
-        <div className={styles["test-name-container"]}>
-          <div className={styles["form-title"]}>{filteredData?.title}</div>
-          <div className={styles["form-desc"]}>
-            Описание: {filteredData?.desc}
-          </div>
-        </div>
-        {filteredData?.answers?.map((answer: any, index: any) => (
-          <div className={styles["question-container"]}>
-            <div className={styles["question-title"]}>
-              {index + 1}. {answer.questionText}
+  if (!loading) {
+    return (
+      <div className={styles["wrapper"]}>
+        <form onSubmit={handleCheckSubmit}>
+          <div className={styles["test-name-container"]}>
+            <div className={styles["form-title"]}>{form.title}</div>
+            <div className={styles["form-desc"]}>
+              Описание: {form.description}
             </div>
-            <hr />
-            <div className={styles["question-options"]}>
-              <div>
-                {answer.answerType === "input" && (
-                  <input type="text" value={answer.answer} disabled></input>
-                )}
-                {answer.answerType === "input-number" && (
-                  <input type="text" value={answer.answer} disabled></input>
-                )}
-                {answer.answerType === "input-short" && (
-                  <input type="text" value={answer.answer} disabled></input>
-                )}
-                {(answer.answerType === "radio" || "checkbox") &&
-                  answer.options?.map((option: any) => (
-                    <div className={styles["option-container"]}>
-                      {answer.answer === option ? (
-                        <input
-                          type="radio"
-                          name={`${index}-option`}
-                          value={option}
-                          defaultChecked
-                          disabled
-                        />
-                      ) : (
-                        <input
-                          type="radio"
-                          name={index}
-                          value={option}
-                          disabled
-                        />
-                      )}
-                      <label>{option}</label>
-                    </div>
-                  ))}
+          </div>
+          {checks[0].questionToCheckDtos.map((answer: any, index: any) => (
+            <div className={styles["question-container"]}>
+              <div className={styles["question-title"]}>
+                {index + 1}. {answer.questionText}
               </div>
-              <div className={styles["correct-radios"]}>
+              <hr />
+              <div className={styles["question-options"]}>
                 <div>
-                  <input
-                    type="radio"
-                    name={index}
-                    value={1}
-                    onChange={(e) =>
-                      handleCorrectChange(e.target.value, e.target.name)
-                    }
-                  />
-                  <label>Верно</label>
+                  <input type="text" value={answer.userAnswer} disabled></input>
                 </div>
-                <div>
-                  <input
-                    type="radio"
-                    name={index}
-                    value={0}
-                    onChange={(e) =>
-                      handleCorrectChange(e.target.value, e.target.name)
-                    }
-                  />
-                  <label>Неверно</label>
+                <div className={styles["correct-radios"]}>
+                  <div>
+                    <input
+                      type="radio"
+                      name={index}
+                      value={1}
+                      onChange={(e) =>
+                        handleCorrectChange(e.target.value, e.target.name)
+                      }
+                    />
+                    <label>Верно</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      name={index}
+                      value={0}
+                      onChange={(e) =>
+                        handleCorrectChange(e.target.value, e.target.name)
+                      }
+                    />
+                    <label>Неверно</label>
+                  </div>
                 </div>
               </div>
             </div>
+          ))}
+          <div className={styles["submit-container"]}>
+            <input type="submit" value="Закончить проверку" />
           </div>
-        ))}
-        <hr />
-        <label>
-          Баллы: {score}/{filteredData.answers.length}
-        </label>
-        <label>
-          Статус: {score >= filteredData.scoreToPass ? "Прошёл" : "Не прошёл"}
-        </label>
-        <hr />
-        <div className={styles["submit-container"]}>
-          <input type="submit" value="Закончить проверку" />
-        </div>
-      </form>
-    </div>
-  );
+        </form>
+      </div>
+    );
+  } else {
+    return <div> Загрузка </div>;
+  }
 };
 
 export default CheckForm;

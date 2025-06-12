@@ -33,22 +33,12 @@ const Login: FC<Props> = () => {
 
     setMessage("");
 
-    login(email, password).then(
-      () => {
+    login(email, password)
+      .then(() => {
         navigate("/main");
         window.location.reload();
-      },
-      (error) => {
-        const resMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-
-        setMessage(resMessage);
-      }
-    );
+      })
+      .catch();
   };
 
   return (

@@ -6,6 +6,9 @@
   height: 100%;
   background: #0f0e0e6a;
   margin: auto;
+  font-family: "Playfair Display";
+  color: #357546;
+  font-weight: bold;
 }
 
 .modal-main {
@@ -22,7 +25,7 @@
 }
 
 .modal-box {
-  padding: 0 3rem;
+  padding: 1rem 3rem;
 }
 
 .modal.display-block {

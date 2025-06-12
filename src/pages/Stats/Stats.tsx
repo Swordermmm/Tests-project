@@ -10,8 +10,15 @@ const headers = [
   { key: "test", label: "Название теста" },
   { key: "result", label: "Результат" },
   { key: "score", label: "Баллы" },
-  { key: "percentage", label: "Процент" },
 ];
+
+interface Stat {
+  fullName: string;
+  email: string;
+  testName: string;
+  result: boolean;
+  score: number;
+}
 
 const Stats: FC = () => {
   //  const { activeUserId, guestId } = useSelector(selectAuth);
@@ -19,55 +26,50 @@ const Stats: FC = () => {
 
   const [name, setName]: [string, (name: string) => void] = useState("");
   const [email, setEmail]: [string, (email: string) => void] = useState("");
-  const [title, setTest]: [string, (test: string) => void] = useState("");
-  const [score, setScore]: [string, (score: string) => void] = useState("");
-  const [percentage, setPercentage]: [string, (percentage: string) => void] =
-    useState("");
-  const [result, setResult]: [string, (result: string) => void] =
-    useState("Прошёл");
+  const [testName, setTest]: [string, (test: string) => void] = useState("");
+  const [score, setScore] = useState<number>(0);
+  const [result, setResult] = useState<string>("false");
+  const [loading, isLoading] = useState<boolean>(true);
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [filteredSubjects, setFilters] = useState<Stat[]>([]);
 
-  const responseData = JSON.parse(localStorage.getItem("formResponse") || '""');
-
-  const newResult = () => {
-    let word: string;
-    if (
-      responseData.isChecked &&
-      responseData.score >= responseData.scoreToPass
-    ) {
-      word = "Прошёл";
-    } else {
-      word = "Не прошёл";
+  async function getStats() {
+    try {
+      const response = await fetch(
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/GetStatistic`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((json: Stat[]) => {
+          setStats(json);
+          setFilters(json);
+        });
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.log(error);
+      return "";
+    } finally {
+      isLoading(false);
     }
-    return word;
-  };
-
-  let newscore: number;
-  let newresult = newResult();
-  if (responseData) {
-    newscore = (responseData.score / responseData.answers.length) * 100;
-  } else {
-    newscore = 0;
   }
 
-  let filteredAnswers = [
-    {
-      name: "placeholder",
-      email: "placeholder",
-      title: responseData.title,
-      result: newresult,
-      score: responseData.score,
-      percentage: `${newscore}`,
-    },
-  ];
-
-  const [filteredSubjects, setFilters] = useState(filteredAnswers);
-
   useEffect(() => {
-    if (filteredAnswers.length > 0) {
-      let filteredData = [...filteredAnswers];
+    if (loading) {
+      getStats();
+    }
+    console.log(stats);
+    if (stats.length > 0) {
+      let filteredData = [...stats];
       if (name) {
         filteredData = filteredData.filter((subject) =>
-          subject.name.toLowerCase().includes(name.toLowerCase())
+          subject.fullName.toLowerCase().includes(name.toLowerCase())
         );
       }
       if (email) {
@@ -75,9 +77,9 @@ const Stats: FC = () => {
           subject.email.toLowerCase().includes(email.toLowerCase())
         );
       }
-      if (title) {
+      if (testName) {
         filteredData = filteredData.filter((subject) =>
-          subject.title.toLowerCase().includes(title.toLowerCase())
+          subject.testName.toLowerCase().includes(testName.toLowerCase())
         );
       }
       if (score) {
@@ -85,25 +87,15 @@ const Stats: FC = () => {
           (subject) => subject.score === score
         );
       }
-      if (percentage) {
-        filteredData = filteredData.filter((subject) =>
-          subject.percentage.startsWith(percentage)
+      if (result === "true") {
+        filteredData = filteredData.filter(
+          (subject) => subject.result === true
         );
-      }
-      if (result) {
-        if (result == "Прошёл") {
-          filteredData = filteredData.sort((a, b) =>
-            b.result.localeCompare(a.result)
-          );
-        } else {
-          filteredData = filteredData.sort((a, b) =>
-            a.result.localeCompare(b.result)
-          );
-        }
+      } else {
       }
       setFilters(filteredData);
     }
-  }, [name, email, title, score, percentage, result]);
+  }, [name, email, testName, score, result]);
 
   return (
     <div className={styles["stats-container"]}>
@@ -136,8 +128,8 @@ const Stats: FC = () => {
               className={styles["input-el result"]}
               onChange={(e) => setResult(e.target.value)}
             >
-              <option value="Прошёл">Прошёл</option>
-              <option value="Не прошёл">Не прошёл</option>
+              <option value="true">Прошёл</option>
+              <option value="false">Не прошёл</option>
             </select>
           </div>
         </div>
@@ -146,7 +138,7 @@ const Stats: FC = () => {
             <label>Название теста</label>
             <input
               type="text"
-              value={title}
+              value={testName}
               className={styles["input-el test"]}
               onChange={(e) => setTest(e.target.value)}
             ></input>
@@ -157,18 +149,10 @@ const Stats: FC = () => {
               type="text"
               value={score}
               className={styles["input-el score"]}
-              onChange={(e) => setScore(e.target.value)}
+              onChange={(e) => setScore(Number(e.target.value))}
             ></input>
           </div>
-          <div className={styles["input-container"]}>
-            <label>Процент</label>
-            <input
-              type="text"
-              value={percentage}
-              className={styles["input-el percentage"]}
-              onChange={(e) => setPercentage(e.target.value)}
-            ></input>
-          </div>
+          <div className={styles["input-container"]}></div>
         </div>
       </div>
       <table>
@@ -183,12 +167,11 @@ const Stats: FC = () => {
           {filteredSubjects.map((subject) => {
             return (
               <tr>
-                <td>{subject.name}</td>
+                <td>{subject.fullName}</td>
                 <td>{subject.email}</td>
-                <td>{subject.title}</td>
-                <td>{subject.result}</td>
+                <td>{subject.testName}</td>
+                <td>{`${subject.result ? "Прошёл" : "Не прошёл"}`}</td>
                 <td>{subject.score}</td>
-                <td>{subject.percentage}%</td>
               </tr>
             );
           })}

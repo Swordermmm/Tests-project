@@ -6,6 +6,7 @@
   font-family: "Playfair Display";
   background-color: #eeeeee;
   padding: 20px 50px;
+  font-weight: bold;
 }
 
 .test-name-container {
@@ -16,16 +17,17 @@
 }
 
 .form-title {
+  display: flex;
+  justify-content: center;
   color: #357546;
-  font-size: 28px;
-  font-weight: bold;
-  padding-bottom: 10px;
+  font-size: 32px;
 }
 
 .form-desc {
+  display: flex;
+  justify-content: center;
   color: #357546;
   font-size: 18px;
-  font-weight: bold;
 }
 
 input {
@@ -73,7 +75,7 @@ input {
 input[type=radio] {
   appearance: none;
 
-  border-radius: 6px;
+  border-radius: 50%;
   width: 16px;
   height: 16px;
 
@@ -90,6 +92,12 @@ input[type=radio] {
 input[type=submit] {
   background-color: #357546;
   color: white;
+}
+
+input[type=checkbox] {
+  background-color: #357546;
+  color: white;
+  cursor: default;
 }
 
 input:checked {

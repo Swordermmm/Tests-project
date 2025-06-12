@@ -1,6 +1,7 @@
 .constructor-container {
   min-height: 100vh;
   width: 100%;
+  background-color: #EEEEEE;
 }
 
 .display-none {
@@ -51,15 +52,33 @@
 .optionContainer {
   display: flex;
   align-items: center;
+  background-color: white;
+  color: black;
+  border-radius: 20px;
+  border: none;
+  padding: 0 10px;
+  max-width: 500px;
 
   input {
     width: 500px;
-    background-color: white;
-    color: black;
-    border-radius: 20px;
-    border: none;
-    padding: 10px 20px;
+    outline: none;
   }
+
+  input[type="checkbox"] {
+    appearance: none;
+    padding: 0px;
+    width: 30px;
+    height: 30px;
+    border: 2px solid black;
+    border-radius: 10px;
+    background-color: #fff;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: pointer;
+  }
+
+  input[type="checkbox"]:checked {
+    background-color: #357546;;
+}
 
   input::placeholder {
     color: #357546;
@@ -122,32 +141,22 @@
   gap:3rem;
 }
 
-.question-text{
-  text-align:left;
-}
-
-.question-box {
-  /* box-shadow:20px 2px 10px solid gray; */
-  padding:1rem;
-  width:20rem;
-  box-shadow: 1px 4px 10px #888888;
-  margin-bottom:20px;
-  margin-top:20px;
-}
-
-.questions {
-  border:none;
-  outline:none;
-}
-
 .addButton {
   background-color: #357546;
   color: white;
+  margin: 0;
+  width: 20rem;
 }
 
 .deleteButton {
-    height: 30px;
-    width: 30px;
+    height: 50px;
+    width: 50px;
+    padding: 0;
+}
+
+.publish-button {
+  width: 440px;
+  padding: 5px 30px;
 }
 
 .btn {
@@ -161,24 +170,6 @@ label {
   margin: 0;
 }
 
-
-.form-title {
-  color: #357546;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.form-desc {
-  color: #357546;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.form-render-container {
-  display: flex;
-  align-items: center;
-}
-
 .input-type {
   background-color: white;
   color: black;
@@ -186,6 +177,10 @@ label {
   width: 500px;
   border: none;
   padding: 10px 20px;
+}
+
+.input-type:disabled {
+  background-color: rgb(183, 183, 183);
 }
 
 .input-type::placeholder {
@@ -238,4 +233,8 @@ label {
     padding: 5px 80px;
     margin: 10px 0;
   }
+}
+
+.horizontal {
+  width: 80%
 }

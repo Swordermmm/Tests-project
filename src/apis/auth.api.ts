@@ -9,20 +9,30 @@ export const register = (email: string, password: string) => {
   });
 };
 
-export const login = (email: string, password: string) => {
-  return axios
-    .post(API_URL + "signin", {
-      email,
-      password,
-    })
-    .then((response) => {
-      if (response.data.accessToken) {
-        localStorage.setItem("user", JSON.stringify(response.data));
-      }
+  export async function login(email: string, password: string) {
+    const data = {
+      email: email,
+      password: password,
+    };
 
-      return response.data;
-    });
-};
+    try {
+      const response = await fetch(
+        "https://constructor-dev-ed2c.onrender.com/api/v1/Auth/LogIn",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+      return "";
+    }
+  }
 
 export const logout = () => {
   localStorage.removeItem("user");

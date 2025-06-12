@@ -81,3 +81,8 @@ label, button, a {
   -webkit-border-radius: 50%;
   border-radius: 50%;
 }
+
+input:focus{
+  border: none;
+  outline: none;
+}

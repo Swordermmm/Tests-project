@@ -5,7 +5,8 @@ import React, { ReactNode } from "react";
 
 interface ModalType {
   children?: ReactNode;
-  isOpen: boolean;
+  isOpen?: boolean;
+  isCrossNeeded: boolean;
   toggle: () => void;
 }
 
@@ -17,10 +18,14 @@ export function Modal(props: ModalType) {
       }`}
     >
       <div className={styles["modal-main"]}>
-        <button className={styles["close-button"]} onClick={props.toggle}>
-          <CloseIcon />
-        </button>
-        <hr></hr>
+        {props.isCrossNeeded && (
+          <>
+            <button className={styles["close-button"]} onClick={props.toggle}>
+              <CloseIcon />
+            </button>
+            <hr></hr>
+          </>
+        )}
         <div className={styles["modal-box"]}>{props.children}</div>
       </div>
     </div>

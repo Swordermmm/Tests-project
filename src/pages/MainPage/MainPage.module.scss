@@ -1,3 +1,9 @@
+.main-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #EEEEEE;
+}
+
 .title {
     color: #357546;
     background-color: #EEEEEE;
@@ -8,14 +14,52 @@
     font-family: "Playfair Display";
 }
 
-.main {
+.main-empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 677px;
+    height: 70vh;
     width: 100%;
     padding: 0 30%;
     background-color: #EEEEEE;
+}
+
+.main-full {
+    color:#357546;
+    padding: 2rem 5rem;
+
+    .main-tests {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .test-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: white;
+        max-width: 250px;
+        border-radius: 20px;
+        font-size: 18px;
+        padding: 5px 10px;
+    }
+
+    .test-btn {
+        max-width: 150px;
+        font-size: 14px;
+    }
+
+    .delete-btn {
+        max-width: 150px;
+        font-size: 14px;
+        background-color: rgb(165, 6, 6);
+    }
+
+    .create-btn {
+        max-width: 300px;
+        font-size: 18px;
+    }
 }
 
 .create-btn {

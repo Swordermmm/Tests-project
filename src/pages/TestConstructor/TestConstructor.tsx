@@ -1,36 +1,35 @@
 import { FC, useEffect, useState } from "react";
-import FormRenderer from "./formRender";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "../../components/Header";
 import { Modal } from "../../components/UI/Modal";
 
 import { v4 as uuid } from "uuid";
-import { Button } from "@mui/material";
+import { Button } from "../../components/UI/Button";
 import styles from "./TestConstructor.module.scss";
 import DeleteIcon from "../../assets/delete-icon.svg";
 
 import ITest from "../../types";
 
 interface Question {
-  id: string;
   questionText: string;
-  answerType: string;
-  options: string[];
+  type: number;
+  answerOptions?: string[];
+  createAnswer: { multipleAnswer?: string[]; singleAnswer?: string };
 }
 
-interface Form {
+export interface Form {
   title: string;
-  desc: string;
-  id: string | undefined;
+  description: string;
   scoreToPass: number;
-  timer: number;
-  messagePass: string;
-  messageNotPass: string;
+  timerInSeconds: string;
+  startAt: string;
+  endAt: string;
+  messageAboutPassing: string;
+  failureMessage: string;
   questions: Question[];
 }
 
 export const TestConstructor: FC = () => {
-  const [showResponse, setShowResponse] = useState(false);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [score, setScore] = useState(0);
@@ -39,25 +38,40 @@ export const TestConstructor: FC = () => {
   const [timer, setTimer] = useState(0);
   const param = useParams();
   const [showSaveButton, setShowSaveButton] = useState(false);
-  const [forms, setForms] = useState<Form[]>([
-    {
-      title: "",
-      desc: "",
-      id: param.id,
-      scoreToPass: 0,
-      timer: 0,
-      messagePass: "",
-      messageNotPass: "",
-      questions: [
-        {
-          id: uuid(),
-          questionText: "",
-          answerType: "",
-          options: [],
-        },
-      ],
-    },
-  ]);
+
+  const navigate = useNavigate();
+
+  const dataTemplate: Form = {
+    title: "",
+    description: "",
+    scoreToPass: 0,
+    timerInSeconds: "0",
+    startAt: "2025-05-23",
+    endAt: "2025-05-26",
+    messageAboutPassing: "",
+    failureMessage: "",
+    questions: [
+      {
+        questionText: "",
+        type: 0,
+        createAnswer: { multipleAnswer: [] },
+      },
+    ],
+  };
+  let forms = localStorage.getItem("forms") || "";
+  let formsData: Form = dataTemplate;
+
+  const [form, setForms] = useState<Form>({
+    title: formsData.title,
+    description: formsData.description,
+    scoreToPass: formsData.scoreToPass,
+    timerInSeconds: formsData.timerInSeconds,
+    messageAboutPassing: formsData.messageAboutPassing,
+    failureMessage: formsData.failureMessage,
+    questions: formsData.questions,
+    startAt: formsData.startAt,
+    endAt: formsData.endAt,
+  });
 
   interface timerValues {
     hours: number;
@@ -71,54 +85,40 @@ export const TestConstructor: FC = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem("forms", JSON.stringify(forms));
+    localStorage.setItem("forms", JSON.stringify(form));
     setTimer(
       Object.values(timerValues).reduce((accumulator, value) => {
         return accumulator + value;
       })
     );
-  }, [forms, timerValues]);
+  }, [form, timerValues]);
 
-  const handleQuestionTextChange = (
-    formId: string | undefined,
-    questionId: string,
-    value: string
-  ) => {
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              questions: form.questions.map((question) =>
-                question.id === questionId
-                  ? { ...question, questionText: value }
-                  : question
-              ),
-            }
-          : form
-      )
+  const handleQuestionTextChange = (questionId: number, value: string) => {
+    setForms(
+      (prevForm) =>
+        (prevForm = {
+          ...prevForm,
+          questions: prevForm.questions.map((question, index) =>
+            index === questionId
+              ? { ...question, questionText: value }
+              : question
+          ),
+        })
     );
   };
 
-  const handleTitleTextChange = (formId: string | undefined, value: string) => {
+  const handleTitleTextChange = (value: string) => {
     setTitle(value);
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              title: value,
-            }
-          : form
-      )
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          title: value,
+        })
     );
   };
 
-  const handleTimerChange = (
-    formId: string | undefined,
-    value: number,
-    word: string
-  ) => {
+  const handleTimerChange = (value: number, word: string) => {
     let updatedValues: timerValues = { hours: 0, minutes: 0, seconds: 0 };
     if (word === "hours")
       updatedValues = {
@@ -140,180 +140,233 @@ export const TestConstructor: FC = () => {
       };
     setTimerValues(updatedValues);
 
-    let newTimer = Object.values(timerValues).reduce((accumulator, value) => {
+    let newTimer = Object.values(updatedValues).reduce((accumulator, value) => {
       return accumulator + value;
     });
 
-    setTimer(newTimer);
+    console.log(updatedValues, newTimer);
 
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              timer: newTimer,
-            }
-          : form
-      )
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          timerInSeconds: String(newTimer),
+        })
     );
   };
 
-  const handleScoreChange = (formId: string | undefined, value: number) => {
+  const handleScoreChange = (value: number) => {
     setScore(value);
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              scoreToPass: value,
-            }
-          : form
-      )
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          scoreToPass: value,
+        })
     );
   };
 
-  const handleGoodMessageChange = (
-    formId: string | undefined,
-    value: string
-  ) => {
+  const handleGoodMessageChange = (value: string) => {
     setGoodMessage(value);
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              messagePass: value,
-            }
-          : form
-      )
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          messageAboutPassing: value,
+        })
     );
   };
 
-  const handleBadMessageChange = (
-    formId: string | undefined,
-    value: string
-  ) => {
+  const handleBadMessageChange = (value: string) => {
     setBadMessage(value);
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              messageNotPass: value,
-            }
-          : form
-      )
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          failureMessage: value,
+        })
     );
   };
 
-  const handleDescTextChange = (formId: string | undefined, value: string) => {
+  const handleDescTextChange = (value: string) => {
     setDesc(value);
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              desc: value,
-            }
-          : form
-      )
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          description: value,
+        })
     );
   };
 
-  const handleAnswerTypeChange = (
-    formId: string | undefined,
-    questionId: string,
-    value: string
-  ) => {
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              questions: form.questions.map((question) =>
-                question.id === questionId
-                  ? { ...question, answerType: value, options: [] }
-                  : question
-              ),
-            }
-          : form
-      )
-    );
+  const handleAnswerTypeChange = (questionId: number, value: number) => {
+    if (value === 2) {
+      setForms(
+        (prevForms) =>
+          (prevForms = {
+            ...prevForms,
+            questions: prevForms.questions.map((question, index) =>
+              index === questionId
+                ? {
+                    ...question,
+                    type: value,
+                    answerOptions: [],
+                    createAnswer: { multipleAnswer: [] },
+                  }
+                : question
+            ),
+          })
+      );
+    } else if (value === 4) {
+      setForms(
+        (prevForms) =>
+          (prevForms = {
+            ...prevForms,
+            questions: prevForms.questions.map((question, index) =>
+              index === questionId
+                ? {
+                    ...question,
+                    type: value,
+                    createAnswer: {},
+                  }
+                : question
+            ),
+          })
+      );
+    }
   };
 
   const handleOptionChange = (
-    formId: string | undefined,
     questionId: string,
     optionIndex: number,
     value: string
   ) => {
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              questions: form.questions.map((question) =>
-                question.id === questionId
-                  ? {
-                      ...question,
-                      options: question.options.map((option, index) =>
-                        index === optionIndex ? value : option
-                      ),
-                    }
-                  : question
-              ),
-            }
-          : form
-      )
+    console.log(form);
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          questions: prevForms.questions.map((question) =>
+            question.questionText === questionId
+              ? {
+                  ...question,
+                  answerOptions: question.answerOptions.map((option, index) =>
+                    index === optionIndex ? value : option
+                  ),
+                }
+              : question
+          ),
+        })
     );
   };
 
-  const handleAddOption = (formId: string | undefined, questionId: string) => {
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              questions: form.questions.map((question) =>
-                question.id === questionId
-                  ? { ...question, options: [...question.options, ""] }
-                  : question
-              ),
-            }
-          : form
-      )
-    );
-  };
-
-  const handleAddQuestion = (formId: string | undefined) => {
-    const newQuestion: Question = {
-      id: uuid(),
-      questionText: "",
-      answerType: "",
-      options: [],
-    };
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? { ...form, questions: [...form.questions, newQuestion] }
-          : form
-      )
-    );
-  };
-
-  const handleDeleteQuestion = (
-    formId: string | undefined,
-    questionId: string
+  const handleMultipleAnswersChange = (
+    questionId: string,
+    optionIndex: number,
+    isChecked: boolean
   ) => {
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.id === formId
-          ? {
-              ...form,
-              questions: form.questions.filter((q) => q.id !== questionId),
-            }
-          : form
-      )
+    console.log(form);
+    if (isChecked) {
+      setForms(
+        (prevForms) =>
+          (prevForms = {
+            ...prevForms,
+            questions: prevForms.questions.map((question) =>
+              question.questionText === questionId
+                ? {
+                    ...question,
+                    createAnswer: {
+                      multipleAnswer: [
+                        ...question.createAnswer.multipleAnswer,
+                        question.answerOptions[optionIndex],
+                      ].sort(),
+                    },
+                  }
+                : question
+            ),
+          })
+      );
+    } else {
+      setForms(
+        (prevForms) =>
+          (prevForms = {
+            ...prevForms,
+            questions: prevForms.questions.map((question) =>
+              question.questionText === questionId
+                ? {
+                    ...question,
+                    createAnswer: {
+                      multipleAnswer: question.createAnswer.multipleAnswer
+                        .filter((a) => a != question.answerOptions[optionIndex])
+                        .sort(),
+                    },
+                  }
+                : question
+            ),
+          })
+      );
+    }
+  };
+
+  const handleAnswerChange = (questionId: number, value: string) => {
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          questions: prevForms.questions.map((question, index) =>
+            index === questionId
+              ? {
+                  ...question,
+                  createAnswer: { singleAnswer: value },
+                }
+              : {
+                  ...question,
+                  createAnswer: question.createAnswer,
+                }
+          ),
+        })
+    );
+  };
+
+  const handleAddOption = (questionId: string) => {
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          questions: prevForms.questions.map((question) =>
+            question.questionText === questionId
+              ? { ...question, answerOptions: [...question.answerOptions, ""] }
+              : question
+          ),
+        })
+    );
+  };
+
+  const handleAddQuestion = () => {
+    const newQuestion: Question = {
+      questionText: "",
+      type: 0,
+      answerOptions: [],
+      createAnswer: {},
+    };
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          questions: [...prevForms.questions, newQuestion],
+        })
+    );
+  };
+
+  const handleDeleteQuestion = (questionId: number) => {
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          questions: prevForms.questions.filter(
+            (q, index) => index !== questionId
+          ),
+        })
     );
   };
 
@@ -323,70 +376,66 @@ export const TestConstructor: FC = () => {
     toggleModal(!showModal);
   };
 
-  function CreateTest(test: ITest) {
-    const headers: Headers = new Headers();
-    headers.set("Content-Type", "application/json");
-    headers.set("Accept", "application/json");
+  async function postTest(newForm: Form) {
+    try {
+      const response = await fetch(
+        "https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/CreateTest",
+        {
+          method: "POST",
+          body: JSON.stringify(newForm),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
 
-    const request: RequestInfo = new Request(
-      "https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/CreateTest",
-      {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(test),
-      }
-    );
-
-    // Send the request and print the response
-    return fetch(request).then((res) => {
-      console.log("got response:", res);
-    });
+      return response;
+    } catch (error) {
+      console.log(error);
+      return "";
+    }
   }
 
   const handleSaveForm = () => {
-    forms[0].title = title;
-    forms[0].desc = desc;
-    forms[0].timer = timer;
-    forms[0].scoreToPass = score;
-    forms[0].messageNotPass = badMessage;
-    forms[0].messagePass = goodMessage;
+    form.title = title;
+    form.description = desc;
+    form.timerInSeconds = String(timer);
+    form.scoreToPass = score;
+    form.failureMessage = badMessage;
+    form.messageAboutPassing = goodMessage;
 
-    const currentDate = new Date();
-    const newDate = new Date(currentDate.getTime() + 2000 * 60 * 60 * 24);
+    const newForm = {
+      title: form.title,
+      description: form.description,
+      scoreToPass: form.scoreToPass,
+      timerInSeconds: String(form.timerInSeconds),
+      startAt: form.startAt,
+      endAt: form.endAt,
+      messageAboutPassing: form.messageAboutPassing,
+      failureMessage: form.failureMessage,
+      questions: form.questions,
+    };
 
-    const questions = forms[0].questions.map((question, index) =>
-      true
-        ? {
-            ...question,
-            questionText: question.questionText,
-            type: question.answerType,
-            mark: 1,
-            order: index + 1,
-          }
+    newForm.questions.map((question) =>
+      question.type === 2
+        ? (question.answerOptions = question.answerOptions
+            ?.toString()
+            .replace(new RegExp(",", "g"), " "))
         : question
     );
-
-    // const test: ITest = {
-    //   title: forms[0].title,
-    //   startAt: currentDate,
-    //   endAt: newDate,
-    //   scoreToPass: forms[0].scoreToPass,
-    //   manualCheck: true,
-    //   questions: [
-
-    //   ]
-    // };
+    console.log(newForm);
+    postTest(newForm);
+    navigate("/main");
     setShowSaveButton(true);
     handleToggleModal();
   };
 
-  const handleOpenForm = () => {
-    setShowResponse(true);
-  };
-
   return (
     <>
-      <Modal isOpen={showModal} toggle={handleToggleModal}>
+      <Modal isOpen={showModal} toggle={handleToggleModal} isCrossNeeded={true}>
         <div className={styles["modal-block"]}>
           <div> Таймер </div>
           <div>
@@ -394,46 +443,37 @@ export const TestConstructor: FC = () => {
               className={styles["modal-input-number"]}
               placeholder="Часы"
               onChange={(e) =>
-                handleTimerChange(
-                  forms[0].id,
-                  parseInt(e.target.value) * 3600,
-                  "hours"
-                )
+                handleTimerChange(parseInt(e.target.value) * 3600, "hours")
               }
             ></input>
             <input
               className={styles["modal-input-number"]}
               placeholder="Минуты"
               onChange={(e) =>
-                handleTimerChange(
-                  forms[0].id,
-                  parseInt(e.target.value) * 60,
-                  "minutes"
-                )
+                handleTimerChange(parseInt(e.target.value) * 60, "minutes")
               }
             ></input>
             <input
               className={styles["modal-input-number"]}
               placeholder="Секунды"
               onChange={(e) =>
-                handleTimerChange(
-                  forms[0].id,
-                  parseInt(e.target.value),
-                  "seconds"
-                )
+                handleTimerChange(parseInt(e.target.value), "seconds")
               }
             ></input>
           </div>
         </div>
         <div className={styles["modal-block"]}>
-          <div>Добавление порога</div>
+          <div>
+            Добавление порога. Всего {form.questions.length}
+            {2 <= form.questions.length && 4 >= form.questions.length
+              ? " задания"
+              : " заданий"}
+          </div>
           <div>
             <input
               className={styles["modal-input-number"]}
               placeholder="Баллы"
-              onChange={(e) =>
-                handleScoreChange(forms[0].id, parseInt(e.target.value))
-              }
+              onChange={(e) => handleScoreChange(parseInt(e.target.value))}
             ></input>
           </div>
         </div>
@@ -442,9 +482,7 @@ export const TestConstructor: FC = () => {
           <input
             className={styles["modal-input-message"]}
             placeholder="Введите сообщение"
-            onChange={(e) =>
-              handleBadMessageChange(forms[0].id, e.target.value)
-            }
+            onChange={(e) => handleBadMessageChange(e.target.value)}
           ></input>
         </div>
         <div className={styles["modal-block"]}>
@@ -452,13 +490,13 @@ export const TestConstructor: FC = () => {
           <input
             className={styles["modal-input-message"]}
             placeholder="Введите сообщение"
-            onChange={(e) =>
-              handleGoodMessageChange(forms[0].id, e.target.value)
-            }
+            onChange={(e) => handleGoodMessageChange(e.target.value)}
           ></input>
         </div>
         <div className={styles["modal-button-el"]}>
-          <button onClick={handleSaveForm}>Опубликовать тест</button>
+          <button onClick={() => handleSaveForm(form)}>
+            Опубликовать тест
+          </button>
         </div>
       </Modal>
       <div
@@ -468,208 +506,193 @@ export const TestConstructor: FC = () => {
       >
         <Header />
         <div className={styles["form-container"]}>
-          {!showResponse &&
-            forms.map((form) => (
-              <div key={form.id} className={styles["form-container"]}>
-                <div className={styles["input-form-title"]}>
-                  Введите название теста
-                </div>
-                <input
-                  className={styles["question-form-top-name"]}
-                  type="text"
-                  placeholder="Название теста"
-                  onChange={(e) =>
-                    handleTitleTextChange(form.id, e.target.value)
-                  }
-                />
-                <div className={styles["input-form-title"]}>
-                  Введите описание теста
-                </div>
-                <input
-                  className={styles["question-form-top-desc"]}
-                  type="text"
-                  placeholder="Описание теста"
-                  onChange={(e) =>
-                    handleDescTextChange(form.id, e.target.value)
-                  }
-                />
-                <div className={styles["input-form-title"]}>Задания</div>
+          <div className={styles["form-container"]}>
+            <div className={styles["input-form-title"]}>
+              Введите название теста
+            </div>
+            <input
+              className={styles["question-form-top-name"]}
+              value={form.title}
+              type="text"
+              placeholder="Название теста"
+              onChange={(e) => handleTitleTextChange(e.target.value)}
+            />
+            <div className={styles["input-form-title"]}>
+              Введите описание теста
+            </div>
+            <input
+              className={styles["question-form-top-desc"]}
+              value={form.description}
+              type="text"
+              placeholder="Описание теста"
+              onChange={(e) => handleDescTextChange(e.target.value)}
+            />
+            <div className={styles["input-form-title"]}>Задания</div>
 
-                {form.questions.map((question) => (
-                  <div
-                    key={question.id}
-                    className={styles["questionContainer"]}
-                  >
-                    <div className={styles["questionTop"]}>
-                      <div>
-                        <select
-                          value={question.answerType}
-                          className={styles["select-el"]}
+            {form.questions.map((question, index) => (
+              <div key={index} className={styles["questionContainer"]}>
+                <div className={styles["questionTop"]}>
+                  <div>
+                    <select
+                      value={question.type}
+                      className={styles["select-el"]}
+                      onChange={(e) =>
+                        handleAnswerTypeChange(index, Number(e.target.value))
+                      }
+                    >
+                      <option value={0}>Выберите тип задания</option>
+                      <option value={2}>Выбор варианта ответа</option>
+                      <option value={4}>Ручной ввод ответа</option>
+                      <option value={1}>Ручной ввод короткого ответа</option>
+                      <option value={1}>Ручной ввод числа</option>
+                    </select>
+                  </div>
+                  <input
+                    className={styles["select-el"]}
+                    placeholder="Описание задания"
+                    value={question.questionText}
+                    onChange={(e) =>
+                      handleQuestionTextChange(index, e.target.value)
+                    }
+                  />
+                </div>
+                {question.type === 2 && (
+                  <>
+                    <div>Ответы</div>
+                    {question.answerOptions.map((option, index) => (
+                      <div key={index} className={styles["optionContainer"]}>
+                        <input
+                          type="checkbox"
                           onChange={(e) =>
-                            handleAnswerTypeChange(
-                              form.id,
-                              question.id,
+                            handleMultipleAnswersChange(
+                              question.questionText,
+                              index,
+                              e.target.checked
+                            )
+                          }
+                        />
+                        <input
+                          placeholder={`Вариант ${index + 1}`}
+                          value={option}
+                          onChange={(e) =>
+                            handleOptionChange(
+                              question.questionText,
+                              index,
                               e.target.value
                             )
                           }
-                        >
-                          <option value="">Выберите тип задания</option>
-                          <option value="radio">
-                            Выбор одного варианта ответа
-                          </option>
-                          {/* <option value="checkbox">
-                            Выбор нескольких вариантов ответа
-                          </option> */}
-                          <option value="input">Ручной ввод ответа</option>
-                          <option value="input-short">
-                            Ручной ввод короткого ответа
-                          </option>
-                          <option value="input-number">
-                            Ручной ввод числа
-                          </option>
-                        </select>
+                        />
                       </div>
-                      <input
-                        className={styles["select-el"]}
-                        placeholder="Описание задания"
-                        value={question.questionText}
-                        onChange={(e) =>
-                          handleQuestionTextChange(
-                            form.id,
-                            question.id,
-                            e.target.value
-                          )
-                        }
-                      />
-                    </div>
-                    {question.answerType === "checkbox" && (
-                      <>
-                        <div>Ответы</div>
-                        {question.options.map((option, index) => (
-                          <div
-                            key={index}
-                            className={styles["optionContainer"]}
-                          >
-                            <input
-                              placeholder={`Вариант ${index + 1}`}
-                              value={option}
-                              onChange={(e) =>
-                                handleOptionChange(
-                                  form.id,
-                                  question.id,
-                                  index,
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                        ))}
-                        <button
-                          onClick={() => handleAddOption(form.id, question.id)}
-                          className={styles["addButton"]}
-                        >
-                          Добавить вариант ответа
-                        </button>
-                      </>
-                    )}
-                    {question.answerType === "radio" && (
-                      <>
-                        <div>Ответы</div>
-                        {question.options.map((option, index) => (
-                          <div
-                            key={index}
-                            className={styles["optionContainer"]}
-                          >
-                            <input
-                              placeholder={`Вариант ${index + 1}`}
-                              value={option}
-                              onChange={(e) =>
-                                handleOptionChange(
-                                  form.id,
-                                  question.id,
-                                  index,
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                        ))}
-                        <button
-                          onClick={() => handleAddOption(form.id, question.id)}
-                          className={styles["addButton"]}
-                        >
-                          Добавить вариант ответа
-                        </button>
-                      </>
-                    )}
-                    {question.answerType === "input" && (
-                      <input
-                        className={styles["input-type"]}
-                        type="text"
-                        placeholder="Введите ответ"
-                      />
-                    )}
-                    {question.answerType === "input-short" && (
-                      <input
-                        className={styles["input-type"]}
-                        type="text"
-                        placeholder="Введите ответ"
-                      />
-                    )}
-                    {question.answerType === "input-number" && (
-                      <input
-                        className={styles["input-type"]}
-                        type="text"
-                        placeholder="Введите ответ"
-                      />
-                    )}
-                    <div>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        onClick={() =>
-                          handleDeleteQuestion(form.id, question.id)
-                        }
-                        className={styles["deleteButton"]}
-                        startIcon={<DeleteIcon />}
-                      ></Button>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  className={styles["btn"]}
-                  onClick={() => handleAddQuestion(form.id)}
-                >
-                  Добавить задание
-                </button>
+                    ))}
+                    <Button
+                      onClick={() => handleAddOption(question.questionText)}
+                      className={styles["addButton"]}
+                    >
+                      Добавить вариант ответа
+                    </Button>
+                  </>
+                )}
+                {question.type === 7 && (
+                  <>
+                    <div>Ответы</div>
+                    {question.answerOptions?.map((option, index) => (
+                      <div key={index} className={styles["optionContainer"]}>
+                        <input
+                          type="checkbox"
+                          checked={question.createAnswer.multipleAnswer.includes(
+                            option
+                          )}
+                          onChange={(e) =>
+                            handleMultipleAnswersChange(
+                              question.questionText,
+                              index,
+                              e.target.checked
+                            )
+                          }
+                        />
+                        <input
+                          placeholder={`Вариант ${index + 1}`}
+                          value={option}
+                          onChange={(e) =>
+                            handleOptionChange(
+                              question.questionText,
+                              index,
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      onClick={() => handleAddOption(question.questionText)}
+                      className={styles["addButton"]}
+                    >
+                      Добавить вариант ответа
+                    </Button>
+                  </>
+                )}
+                {question.type === 4 && (
+                  <input
+                    className={styles["input-type"]}
+                    type="text"
+                    placeholder="Введите ответ"
+                    disabled
+                    onChange={(e) => handleAnswerChange(index, e.target.value)}
+                  />
+                )}
+                {/* {question.answerType === "1" && (
+                  <input
+                    className={styles["input-type"]}
+                    type="text"
+                    placeholder="Введите ответ"
+                    value={question.createAnswer[0]}
+                    onChange={(e) => handleAnswerChange(index, e.target.value)}
+                  />
+                )} */}
+                {question.type === 1 && (
+                  <input
+                    className={styles["input-type"]}
+                    type="text"
+                    placeholder="Введите ответ"
+                    onChange={(e) => handleAnswerChange(index, e.target.value)}
+                  />
+                )}
+                <div>
+                  <Button
+                    onClick={() => handleDeleteQuestion(index)}
+                    className={styles["deleteButton"]}
+                  >
+                    <DeleteIcon />
+                  </Button>
+                </div>
+                <hr className={styles["horizontal"]} />
               </div>
             ))}
-          {!showResponse && (
+            <button
+              className={styles["btn"]}
+              onClick={() => handleAddQuestion()}
+            >
+              Добавить задание
+            </button>
+          </div>
+          {
             <Button
-              variant="contained"
-              color="primary"
               onClick={handleToggleModal}
+              className={styles["publish-button"]}
             >
               Опубликовать тест
             </Button>
-          )}
-          {showResponse && showSaveButton && (
-            <FormRenderer
-              formData={forms}
-              id={param.id}
-              setShowResponse={setShowResponse}
-            />
-          )}
+          }
           <div className="button-container">
-            {!showResponse && showSaveButton && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleOpenForm}
-              >
-                Прототип вида от тестируемого
-              </Button>
+            {showSaveButton && (
+              <div>
+                {" "}
+                Ссылка на тест:
+                <Button to={`http://localhost:5173/test/${param.id}`}>
+                  {" "}
+                  http://localhost:5173/test/{param.id}{" "}
+                </Button>
+              </div>
             )}
           </div>
         </div>
