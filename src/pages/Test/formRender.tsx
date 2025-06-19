@@ -28,7 +28,7 @@ export interface ITest {
   questions: Question[];
 }
 
-interface IAnswer {
+export interface IAnswer {
   textAnswer?: string;
   multipleAnswer?: string[];
   questionId: string;
@@ -37,19 +37,17 @@ interface IAnswer {
 interface FormRendererProps {
   formData: ITest;
   setShowResponse: (show: boolean) => void;
+  normalisedResponse: IAnswer[];
 }
 
-function FormRenderer({ formData, setShowResponse }: FormRendererProps) {
-  const [formResponses, setFormResponses] = useState<IAnswer[]>([
-    {
-      multipleAnswer: [],
-      questionId: "",
-    },
-    {
-      textAnswer: "",
-      questionId: "",
-    },
-  ]);
+function FormRenderer({
+  formData,
+  setShowResponse,
+  normalisedResponse,
+}: FormRendererProps) {
+  const [formResponses, setFormResponses] =
+    useState<IAnswer[]>(normalisedResponse);
+
   const [showModal, toggleModal] = useState<boolean>(true);
   const [name, setName] = useState<string>("");
   const [secondName, setSecondName] = useState<string>("");
@@ -58,9 +56,9 @@ function FormRenderer({ formData, setShowResponse }: FormRendererProps) {
   const navigate = useNavigate();
   const params = useParams();
 
-  // useEffect(() => {
-  //   let children = setFormResponses((prevResponses) => prevResponses);
-  // });
+  useEffect(() => {
+    console.log(formData);
+  }, []);
 
   async function postSolution(formResponses: any) {
     try {
@@ -93,7 +91,7 @@ function FormRenderer({ formData, setShowResponse }: FormRendererProps) {
       email: email,
       answers: formResponses,
     };
-
+    console.log(formResponses);
     postSolution(formResponse);
   };
 
@@ -158,7 +156,10 @@ function FormRenderer({ formData, setShowResponse }: FormRendererProps) {
             <div className={styles["form-desc"]}>
               Описание: {formData.description}
             </div>
-            <Timer time={formData.timerInSeconds}></Timer>
+            <Timer
+              time={formData.timerInSeconds}
+              onZero={handleFormSubmit}
+            ></Timer>
             {formData.questions.map((question, index) => (
               <div key={index}>
                 <div className={styles["question-box"]}>

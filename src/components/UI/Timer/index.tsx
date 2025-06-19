@@ -3,6 +3,7 @@ import styles from "./Timer.module.scss";
 
 interface Props {
   time: number;
+  onZero: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 interface TimeState {
@@ -11,7 +12,7 @@ interface TimeState {
   minutes: number;
 }
 
-export const Timer: FC<Props> = ({ time }) => {
+export const Timer: FC<Props> = ({ time, onZero }) => {
   const [timer, setTime] = useState<TimeState>({
     time,
     seconds: time - Math.floor((time - 1) / 60) * 60 - 1,
@@ -21,7 +22,7 @@ export const Timer: FC<Props> = ({ time }) => {
   useEffect(() => {
     setTimeout(() => {
       if (timer.time === 0) {
-        return;
+        onZero;
       }
 
       setTime({

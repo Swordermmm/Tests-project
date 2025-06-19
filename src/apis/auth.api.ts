@@ -27,6 +27,7 @@ export const register = (email: string, password: string) => {
           },
         }
       );
+      console.log(response)
       return response;
     } catch (error) {
       console.log(error);
@@ -36,11 +37,4 @@ export const register = (email: string, password: string) => {
 
 export const logout = () => {
   localStorage.removeItem("user");
-};
-
-export const getCurrentUser = () => {
-  const userStr = localStorage.getItem("user");
-  if (userStr) return JSON.parse(userStr);
-
-  return null;
 };

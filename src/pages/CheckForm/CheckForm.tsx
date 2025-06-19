@@ -6,7 +6,7 @@ import styles from "./CheckForm.module.scss";
 
 const CheckForm: FC = () => {
   const params = useParams();
-  const [mark, setMark] = useState<number>(0);
+  const [mark, setMark] = useState<number[]>([]);
   const [checks, setChecks] = useState<[]>([]);
   const [form, setForm] = useState<ITest>({
     isActive: true,
@@ -23,6 +23,7 @@ const CheckForm: FC = () => {
   });
   const [loading, isLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const user: string = JSON.parse(localStorage.getItem("test"));
 
   async function getTest() {
     try {
@@ -42,7 +43,6 @@ const CheckForm: FC = () => {
         });
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     } finally {
     }
@@ -61,10 +61,15 @@ const CheckForm: FC = () => {
         }
       )
         .then((response) => response.json())
-        .then((data) => setChecks(data));
+        .then((json) => json.filter((check) => check.userid == user))
+        .then((data) => {
+          setChecks(data);
+          for (var item in data[0].questionToCheckDtos) {
+            setMark((prevMark) => [...prevMark, 0]);
+          }
+        });
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     } finally {
       isLoading(false);
@@ -87,7 +92,6 @@ const CheckForm: FC = () => {
       );
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     }
   }
@@ -98,24 +102,33 @@ const CheckForm: FC = () => {
   }, []);
 
   //Функция отвечает за все значения проверки
-  const handleCorrectChange = (number: string, id: any) => {
-    setMark((prevMark) => (prevMark = Number(number)));
+  const handleCorrectChange = (number: string, id: any, ind: number) => {
+    setMark((prevMark) =>
+      prevMark.map((mark, index) =>
+        ind == index ? (mark = Number(number)) : mark
+      )
+    );
+    console.log(mark);
   };
 
   // Отвечает за сохранение проверки
   const handleCheckSubmit: any = (e: any) => {
     e.preventDefault();
+    let markedQuestions: any = [];
+    let index: number = 0;
+    for (var question of checks[0].questionToCheckDtos) {
+      let markedQuestion = {
+        questionId: question.questionId,
+        mark: mark[index],
+      };
+      markedQuestions.push(markedQuestion);
+      index += 1;
+    }
     const checkedResponse = {
       userId: checks[0].userid,
-      markedQuestions: [
-        {
-          questionId: checks[0].questionToCheckDtos[0].questionId,
-          mark: mark,
-        },
-      ],
+      markedQuestions: markedQuestions,
     };
     postManualChecks([checkedResponse]);
-    console.log(checkedResponse);
     navigate("/check");
   };
   if (!loading) {
@@ -145,7 +158,11 @@ const CheckForm: FC = () => {
                       name={index}
                       value={1}
                       onChange={(e) =>
-                        handleCorrectChange(e.target.value, e.target.name)
+                        handleCorrectChange(
+                          e.target.value,
+                          e.target.name,
+                          index
+                        )
                       }
                     />
                     <label>Верно</label>
@@ -156,7 +173,11 @@ const CheckForm: FC = () => {
                       name={index}
                       value={0}
                       onChange={(e) =>
-                        handleCorrectChange(e.target.value, e.target.name)
+                        handleCorrectChange(
+                          e.target.value,
+                          e.target.name,
+                          index
+                        )
                       }
                     />
                     <label>Неверно</label>

@@ -26,9 +26,9 @@ const Register: React.FC = () => {
     password: Yup.string()
       .test(
         "len",
-        "Длина пароля должна быть больше 6, но меньше 20.",
+        "Длина пароля должна быть больше 5, но меньше 20.",
         (val: any) =>
-          val && val.toString().length >= 6 && val.toString().length <= 20
+          val && val.toString().length >= 5 && val.toString().length <= 20
       )
       .required("Данное поле не заполнено!"),
   });

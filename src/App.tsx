@@ -23,11 +23,11 @@ function App() {
   const [currentUser, setCurrentUser] = useState<IUser | undefined>(undefined);
 
   useEffect(() => {
-    const user = AuthService.getCurrentUser();
+    // const user = AuthService.getCurrentUser();
 
-    if (user) {
-      setCurrentUser(user);
-    }
+    // if (user) {
+    //   setCurrentUser(user);
+    // }
 
     EventBus.on("logout", logOut);
 

@@ -1,12 +1,40 @@
 import { useParams } from "react-router-dom";
 import { FC, useState, useEffect } from "react";
 import FormRenderer from "./formRender";
-import { ITest } from "./formRender";
-import styles from "./Test.module.scss";
+import { ITest, IAnswer } from "./formRender";
 
 export const Test: FC = () => {
   const [showResponse, setShowResponse] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  function normaliseFormRespone() {
+    let newResponse: IAnswer[] = [];
+    for (var question of form.questions) {
+      let newQuestion: IAnswer;
+      switch (question.type) {
+        case "MultiplyAnswer":
+          newQuestion = {
+            questionId: question.id,
+            multipleAnswer: [],
+          };
+          break;
+        case "DetailedAnswer":
+          newQuestion = {
+            questionId: question.id,
+            textAnswer: "",
+          };
+          break;
+        default:
+          newQuestion = {
+            questionId: question.id,
+            textAnswer: "",
+          };
+          break;
+      }
+      newResponse.push(newQuestion);
+    }
+    return newResponse;
+  }
 
   const [form, setForm] = useState<ITest>({
     isActive: true,
@@ -54,7 +82,13 @@ export const Test: FC = () => {
   }, []);
 
   if (form && !loading) {
-    return <FormRenderer formData={form} setShowResponse={setShowResponse} />;
+    return (
+      <FormRenderer
+        formData={form}
+        setShowResponse={setShowResponse}
+        normalisedResponse={normaliseFormRespone()}
+      />
+    );
   } else {
     return <div> Загрузка </div>;
   }

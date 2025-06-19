@@ -3,18 +3,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "../../components/Header";
 import { Modal } from "../../components/UI/Modal";
 
-import { v4 as uuid } from "uuid";
 import { Button } from "../../components/UI/Button";
 import styles from "./TestConstructor.module.scss";
 import DeleteIcon from "../../assets/delete-icon.svg";
-
-import ITest from "../../types";
 
 interface Question {
   questionText: string;
   type: number;
   answerOptions?: string[];
-  createAnswer: { multipleAnswer?: string[]; singleAnswer?: string };
+  createAnswer?: { multipleAnswer?: string[]; textAnswer?: string };
+  mark?: number;
 }
 
 export interface Form {
@@ -30,14 +28,10 @@ export interface Form {
 }
 
 export const TestConstructor: FC = () => {
-  const [title, setTitle] = useState("");
-  const [desc, setDesc] = useState("");
-  const [score, setScore] = useState(0);
-  const [badMessage, setBadMessage] = useState("");
-  const [goodMessage, setGoodMessage] = useState("");
   const [timer, setTimer] = useState(0);
   const param = useParams();
-  const [showSaveButton, setShowSaveButton] = useState(false);
+  const [isEdit, setEdit] = useState(false);
+  const [isLoaded, setLoad] = useState(false);
 
   const navigate = useNavigate();
 
@@ -54,11 +48,11 @@ export const TestConstructor: FC = () => {
       {
         questionText: "",
         type: 0,
-        createAnswer: { multipleAnswer: [] },
+        createAnswer: {},
       },
     ],
   };
-  let forms = localStorage.getItem("forms") || "";
+
   let formsData: Form = dataTemplate;
 
   const [form, setForms] = useState<Form>({
@@ -86,6 +80,10 @@ export const TestConstructor: FC = () => {
 
   useEffect(() => {
     localStorage.setItem("forms", JSON.stringify(form));
+    if (!isLoaded) {
+      getTest();
+      setLoad(true);
+    }
     setTimer(
       Object.values(timerValues).reduce((accumulator, value) => {
         return accumulator + value;
@@ -108,7 +106,6 @@ export const TestConstructor: FC = () => {
   };
 
   const handleTitleTextChange = (value: string) => {
-    setTitle(value);
     setForms(
       (prevForms) =>
         (prevForms = {
@@ -144,8 +141,6 @@ export const TestConstructor: FC = () => {
       return accumulator + value;
     });
 
-    console.log(updatedValues, newTimer);
-
     setForms(
       (prevForms) =>
         (prevForms = {
@@ -156,7 +151,6 @@ export const TestConstructor: FC = () => {
   };
 
   const handleScoreChange = (value: number) => {
-    setScore(value);
     setForms(
       (prevForms) =>
         (prevForms = {
@@ -167,7 +161,6 @@ export const TestConstructor: FC = () => {
   };
 
   const handleGoodMessageChange = (value: string) => {
-    setGoodMessage(value);
     setForms(
       (prevForms) =>
         (prevForms = {
@@ -178,7 +171,6 @@ export const TestConstructor: FC = () => {
   };
 
   const handleBadMessageChange = (value: string) => {
-    setBadMessage(value);
     setForms(
       (prevForms) =>
         (prevForms = {
@@ -189,7 +181,6 @@ export const TestConstructor: FC = () => {
   };
 
   const handleDescTextChange = (value: string) => {
-    setDesc(value);
     setForms(
       (prevForms) =>
         (prevForms = {
@@ -233,6 +224,22 @@ export const TestConstructor: FC = () => {
             ),
           })
       );
+    } else {
+      setForms(
+        (prevForms) =>
+          (prevForms = {
+            ...prevForms,
+            questions: prevForms.questions.map((question, index) =>
+              index === questionId
+                ? {
+                    ...question,
+                    type: value,
+                    createAnswer: { textAnswer: "" },
+                  }
+                : question
+            ),
+          })
+      );
     }
   };
 
@@ -241,7 +248,6 @@ export const TestConstructor: FC = () => {
     optionIndex: number,
     value: string
   ) => {
-    console.log(form);
     setForms(
       (prevForms) =>
         (prevForms = {
@@ -296,7 +302,7 @@ export const TestConstructor: FC = () => {
                 ? {
                     ...question,
                     createAnswer: {
-                      multipleAnswer: question.createAnswer.multipleAnswer
+                      multipleAnswer: question.createAnswer?.multipleAnswer
                         .filter((a) => a != question.answerOptions[optionIndex])
                         .sort(),
                     },
@@ -317,12 +323,31 @@ export const TestConstructor: FC = () => {
             index === questionId
               ? {
                   ...question,
-                  createAnswer: { singleAnswer: value },
+                  createAnswer: {
+                    textAnswer: value,
+                  },
                 }
               : {
                   ...question,
                   createAnswer: question.createAnswer,
                 }
+          ),
+        })
+    );
+  };
+
+  const handleMarkChange = (questionId: number, value: number) => {
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          questions: prevForms.questions.map((question, index) =>
+            index === questionId
+              ? {
+                  ...question,
+                  mark: value,
+                }
+              : question
           ),
         })
     );
@@ -346,8 +371,6 @@ export const TestConstructor: FC = () => {
     const newQuestion: Question = {
       questionText: "",
       type: 0,
-      answerOptions: [],
-      createAnswer: {},
     };
     setForms(
       (prevForms) =>
@@ -373,6 +396,7 @@ export const TestConstructor: FC = () => {
   const [showModal, toggleModal] = useState<boolean>(false);
 
   const handleToggleModal = () => {
+    console.log(form, isEdit);
     toggleModal(!showModal);
   };
 
@@ -390,22 +414,119 @@ export const TestConstructor: FC = () => {
           },
         }
       );
-      console.log(response);
-
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     }
   }
 
+  async function updateTest(newForm: Form) {
+    try {
+      const response = await fetch(
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/Update/${param.id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(newForm),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(newForm);
+      return response;
+    } catch (error) {
+      return "";
+    }
+  }
+
+  async function getTest() {
+    try {
+      const response = await fetch(
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/GetTest/Redactor${param.id}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+          },
+        }
+      ).then((response) => response.json());
+
+      let testEdit: Form = {
+        title: response.title,
+        description: response.description,
+        scoreToPass: response.scoreToPass,
+        timerInSeconds: response.timerInSeconds,
+        startAt: response.startAt,
+        endAt: response.endAt,
+        messageAboutPassing: response.messageAboutPassing,
+        failureMessage: response.failureMessage,
+        questions: backToNormal(response.questions),
+      };
+      setEdit(true);
+      setForms(testEdit);
+      return "";
+    } catch (error) {
+      setEdit(false);
+      return "";
+    }
+  }
+
+  const backToNormal = (questions: any) => {
+    let newQuestions: Question[] = [];
+    for (var question of questions) {
+      let questionType: number = 0;
+      switch (question.type) {
+        case "MultiplyAnswer":
+          questionType = 2;
+          break;
+        case "SingleAnswer":
+          questionType = 1;
+          break;
+        case "DetailedAnswer":
+          questionType = 4;
+          break;
+        default:
+          questionType = 0;
+          break;
+      }
+      let newQuestion: Question;
+      if (questionType === 2) {
+        newQuestion = {
+          questionText: question.questionText,
+          type: questionType,
+          answerOptions: question.answers.answerOptions,
+          createAnswer: {
+            multipleAnswer: question.correctAnswers.answerOptions,
+          },
+          mark: question.mark,
+        };
+      } else if (questionType === 4) {
+        newQuestion = {
+          questionText: question.questionText,
+          type: questionType,
+          createAnswer: {},
+        };
+      } else {
+        newQuestion = {
+          questionText: question.questionText,
+          type: questionType,
+          answerOptions: question.correctAnswers.answerOptions,
+          createAnswer: {
+            textAnswer: question.answers.answerOptions,
+          },
+          mark: question.mark,
+        };
+      }
+      newQuestions.push(newQuestion);
+    }
+    return newQuestions;
+  };
+
   const handleSaveForm = () => {
-    form.title = title;
-    form.description = desc;
     form.timerInSeconds = String(timer);
-    form.scoreToPass = score;
-    form.failureMessage = badMessage;
-    form.messageAboutPassing = goodMessage;
 
     const newForm = {
       title: form.title,
@@ -426,11 +547,10 @@ export const TestConstructor: FC = () => {
             .replace(new RegExp(",", "g"), " "))
         : question
     );
-    console.log(newForm);
-    postTest(newForm);
+
+    isEdit ? updateTest(newForm) : postTest(newForm);
     navigate("/main");
-    setShowSaveButton(true);
-    handleToggleModal();
+    // window.location.reload();
   };
 
   return (
@@ -473,6 +593,7 @@ export const TestConstructor: FC = () => {
             <input
               className={styles["modal-input-number"]}
               placeholder="Баллы"
+              value={form.scoreToPass}
               onChange={(e) => handleScoreChange(parseInt(e.target.value))}
             ></input>
           </div>
@@ -482,6 +603,7 @@ export const TestConstructor: FC = () => {
           <input
             className={styles["modal-input-message"]}
             placeholder="Введите сообщение"
+            value={form.failureMessage}
             onChange={(e) => handleBadMessageChange(e.target.value)}
           ></input>
         </div>
@@ -490,13 +612,12 @@ export const TestConstructor: FC = () => {
           <input
             className={styles["modal-input-message"]}
             placeholder="Введите сообщение"
+            value={form.messageAboutPassing}
             onChange={(e) => handleGoodMessageChange(e.target.value)}
           ></input>
         </div>
         <div className={styles["modal-button-el"]}>
-          <button onClick={() => handleSaveForm(form)}>
-            Опубликовать тест
-          </button>
+          <button onClick={() => handleSaveForm()}>Опубликовать тест</button>
         </div>
       </Modal>
       <div
@@ -541,7 +662,7 @@ export const TestConstructor: FC = () => {
                       }
                     >
                       <option value={0}>Выберите тип задания</option>
-                      <option value={2}>Выбор варианта ответа</option>
+                      <option value={2}>Выбор вариантов ответа</option>
                       <option value={4}>Ручной ввод ответа</option>
                       <option value={1}>Ручной ввод короткого ответа</option>
                       <option value={1}>Ручной ввод числа</option>
@@ -558,48 +679,20 @@ export const TestConstructor: FC = () => {
                 </div>
                 {question.type === 2 && (
                   <>
-                    <div>Ответы</div>
-                    {question.answerOptions.map((option, index) => (
-                      <div key={index} className={styles["optionContainer"]}>
-                        <input
-                          type="checkbox"
-                          onChange={(e) =>
-                            handleMultipleAnswersChange(
-                              question.questionText,
-                              index,
-                              e.target.checked
-                            )
-                          }
-                        />
-                        <input
-                          placeholder={`Вариант ${index + 1}`}
-                          value={option}
-                          onChange={(e) =>
-                            handleOptionChange(
-                              question.questionText,
-                              index,
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
-                    ))}
-                    <Button
-                      onClick={() => handleAddOption(question.questionText)}
-                      className={styles["addButton"]}
-                    >
-                      Добавить вариант ответа
-                    </Button>
-                  </>
-                )}
-                {question.type === 7 && (
-                  <>
+                    <input
+                      type="number"
+                      placeholder="Баллы"
+                      value={question.mark}
+                      onChange={(e) =>
+                        handleMarkChange(index, Number(e.target.value))
+                      }
+                    />
                     <div>Ответы</div>
                     {question.answerOptions?.map((option, index) => (
                       <div key={index} className={styles["optionContainer"]}>
                         <input
                           type="checkbox"
-                          checked={question.createAnswer.multipleAnswer.includes(
+                          checked={question.createAnswer?.multipleAnswer?.includes(
                             option
                           )}
                           onChange={(e) =>
@@ -631,6 +724,45 @@ export const TestConstructor: FC = () => {
                     </Button>
                   </>
                 )}
+                {/* {question.type === 7 && (
+                  <>
+                    <div>Ответы</div>
+                    {question.answerOptions?.map((option, index) => (
+                      <div key={index} className={styles["optionContainer"]}>
+                        <input
+                          type="checkbox"
+                          checked={question.createAnswer?.multipleAnswer?.includes(
+                            option
+                          )}
+                          onChange={(e) =>
+                            handleMultipleAnswersChange(
+                              question.questionText,
+                              index,
+                              e.target.checked
+                            )
+                          }
+                        />
+                        <input
+                          placeholder={`Вариант ${index + 1}`}
+                          value={option}
+                          onChange={(e) =>
+                            handleOptionChange(
+                              question.questionText,
+                              index,
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      onClick={() => handleAddOption(question.questionText)}
+                      className={styles["addButton"]}
+                    >
+                      Добавить вариант ответа
+                    </Button>
+                  </>
+                )} */}
                 {question.type === 4 && (
                   <input
                     className={styles["input-type"]}
@@ -640,22 +772,26 @@ export const TestConstructor: FC = () => {
                     onChange={(e) => handleAnswerChange(index, e.target.value)}
                   />
                 )}
-                {/* {question.answerType === "1" && (
-                  <input
-                    className={styles["input-type"]}
-                    type="text"
-                    placeholder="Введите ответ"
-                    value={question.createAnswer[0]}
-                    onChange={(e) => handleAnswerChange(index, e.target.value)}
-                  />
-                )} */}
                 {question.type === 1 && (
-                  <input
-                    className={styles["input-type"]}
-                    type="text"
-                    placeholder="Введите ответ"
-                    onChange={(e) => handleAnswerChange(index, e.target.value)}
-                  />
+                  <>
+                    <input
+                      type="number"
+                      placeholder="Баллы"
+                      value={String(question.mark)}
+                      onChange={(e) =>
+                        handleMarkChange(index, Number(e.target.value))
+                      }
+                    />
+                    <input
+                      className={styles["input-type"]}
+                      type="text"
+                      placeholder="Введите ответ"
+                      value={question.createAnswer?.textAnswer}
+                      onChange={(e) =>
+                        handleAnswerChange(index, e.target.value)
+                      }
+                    />
+                  </>
                 )}
                 <div>
                   <Button
@@ -683,18 +819,6 @@ export const TestConstructor: FC = () => {
               Опубликовать тест
             </Button>
           }
-          <div className="button-container">
-            {showSaveButton && (
-              <div>
-                {" "}
-                Ссылка на тест:
-                <Button to={`http://localhost:5173/test/${param.id}`}>
-                  {" "}
-                  http://localhost:5173/test/{param.id}{" "}
-                </Button>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </>

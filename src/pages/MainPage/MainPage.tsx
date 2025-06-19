@@ -61,6 +61,7 @@ const MainPage: FC = () => {
           },
         }
       );
+      getTests();
       return response;
     } catch (error) {
       console.log(error);
@@ -70,7 +71,7 @@ const MainPage: FC = () => {
 
   useEffect(() => {
     getTests();
-  });
+  }, []);
 
   return (
     <div className={styles["main-container"]}>

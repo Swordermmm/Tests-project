@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 //import { useSelector } from 'react-redux';
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Header } from "../../components/Header";
 import styles from "./CheckPage.module.scss";
 import { Button } from "../../components/UI";
@@ -20,6 +20,7 @@ const CheckPage: FC = () => {
   //  const id = activeUserId ?? guestId;
   const [tests, setTests] = useState<[]>([]);
   const [checks, setChecks] = useState<[]>([]);
+  const navigate = useNavigate();
 
   async function getTests() {
     try {
@@ -34,21 +35,22 @@ const CheckPage: FC = () => {
         }
       )
         .then((response) => response.json())
-        .then((json) => json.filter((test) => test.manualCheck == true))
-        .then((data) => setTests(data));
+        .then((json) => {
+          json.filter((test) => test.manualCheck == true);
+          setTests(json);
+          getManualChecks(json);
+        });
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     } finally {
-      getManualChecks();
     }
   }
 
-  async function getManualChecks() {
+  async function getManualChecks(json: any) {
     try {
       const response = await fetch(
-        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/ManualCheck/${tests[0].id}`,
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/ManualCheck/${json[1].id}`,
         {
           method: "GET",
           credentials: "include",
@@ -58,18 +60,24 @@ const CheckPage: FC = () => {
         }
       )
         .then((response) => response.json())
-        .then((data) => setChecks(data));
+        .then((json) => {
+          setChecks(json);
+        });
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     } finally {
     }
   }
 
+  const goCheckSolution = (user: string, testId: string) => {
+    localStorage.setItem("test", JSON.stringify(user));
+    navigate("/check/" + testId);
+  };
+
   useEffect(() => {
     getTests();
-  });
+  }, []);
 
   return (
     <div className={styles["wrapper"]}>
@@ -85,12 +93,16 @@ const CheckPage: FC = () => {
             </tr>
           </thead>
           <tbody>
-            {checks.map((response: ResponseRender) => {
+            {checks.map((response: ResponseRender, index) => {
               return (
                 <tr>
-                  <td>{tests[0].title}</td>
+                  <td>{tests[1].title}</td>
                   <td>
-                    <Button to={"/check/" + tests[0].id}>
+                    <Button
+                      onClick={() =>
+                        goCheckSolution(checks[index].userid, tests[1].id)
+                      }
+                    >
                       Ручная проверка
                     </Button>
                   </td>
