@@ -6,5 +6,12 @@ import svgr from 'vite-plugin-svgr'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), svgr({ include: "**/*.svg"})],
-  server: {}
+  server: {
+    proxy: {
+      "/api": {
+        target: 'https://constructor-dev-ed2c.onrender.com/',
+        changeOrigin: true,
+      }
+    }
+  }
 })

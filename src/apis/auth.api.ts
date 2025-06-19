@@ -21,6 +21,7 @@ export const register = (email: string, password: string) => {
         {
           method: "POST",
           body: JSON.stringify(data),
+          credentials: "include",
           headers: {
             accept: "*/*",
             "Content-Type": "application/json",

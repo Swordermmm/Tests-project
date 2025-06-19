@@ -1,11 +1,19 @@
 import { FC, useEffect, useState } from "react";
 import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const Checking: FC = () => {
-  async function getTest() {
+  async function getTests() {
     try {
-      const response = await axios.get(
-        "https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/GetAllTests"
+      const response = await fetch(
+        "https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/GetAllTests",
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+          },
+        }
       );
       console.log(response);
       return response;
@@ -23,10 +31,11 @@ export const Checking: FC = () => {
 
     try {
       const response = await fetch(
-        "https://constructor-dev-ed2c.onrender.com/api/v1/Auth/LogIn",
+        `https://constructor-dev-ed2c.onrender.com/api/v1/Auth/LogIn`,
         {
           method: "POST",
           body: JSON.stringify(data),
+          credentials: "include",
           headers: {
             accept: "*/*",
             "Content-Type": "application/json",
@@ -49,6 +58,7 @@ export const Checking: FC = () => {
         {
           method: "POST",
           body: "",
+          credentials: "include",
           headers: {
             accept: "*/*",
             "Content-Type": "application/json",
@@ -69,7 +79,7 @@ export const Checking: FC = () => {
   }
 
   async function handleTests() {
-    await getTest();
+    await getTests();
   }
 
   async function handleLogOut() {
