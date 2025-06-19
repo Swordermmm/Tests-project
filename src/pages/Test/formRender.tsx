@@ -83,7 +83,6 @@ function FormRenderer({
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const formResponse = {
       firstName: name,
       secondName: secondName,
@@ -91,7 +90,7 @@ function FormRenderer({
       email: email,
       answers: formResponses,
     };
-    console.log(formResponses);
+    navigate("/register");
     postSolution(formResponse);
   };
 

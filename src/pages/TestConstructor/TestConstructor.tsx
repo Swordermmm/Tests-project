@@ -550,7 +550,6 @@ export const TestConstructor: FC = () => {
 
     isEdit ? updateTest(newForm) : postTest(newForm);
     navigate("/main");
-    // window.location.reload();
   };
 
   return (

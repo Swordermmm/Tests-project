@@ -129,7 +129,7 @@ const CheckForm: FC = () => {
       markedQuestions: markedQuestions,
     };
     postManualChecks([checkedResponse]);
-    navigate("/check");
+    navigate("/main");
   };
   if (!loading) {
     return (

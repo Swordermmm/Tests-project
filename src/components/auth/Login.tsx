@@ -35,8 +35,8 @@ const Login: FC<Props> = () => {
 
     login(email, password)
       .then(() => {
-        // navigate("/main");
-        // window.location.reload();
+        navigate("/main");
+        window.location.reload();
       })
       .catch();
   };
