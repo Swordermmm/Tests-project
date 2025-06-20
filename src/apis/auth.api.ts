@@ -1,13 +1,27 @@
-import axios from "axios";
+  export async function register(email: string, password: string) {
+    const data = {
+      email: email,
+      password: password,
+    };
 
-const API_URL = "https://64d4f6161bea58f0.mokky.dev/";
-
-export const register = (email: string, password: string) => {
-  return axios.post(API_URL + "signup", {
-    email,
-    password,
-  });
-};
+    try {
+      const response = await fetch(
+        "https://constructor-dev-ed2c.onrender.com/api/v1/Auth/Registration",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      return "";
+    }
+  }
 
   export async function login(email: string, password: string) {
     const data = {
@@ -28,7 +42,6 @@ export const register = (email: string, password: string) => {
           },
         }
       );
-      console.log(response)
       return response;
     } catch (error) {
       console.log(error);

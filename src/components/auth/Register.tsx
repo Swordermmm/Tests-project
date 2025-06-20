@@ -38,7 +38,6 @@ const Register: React.FC = () => {
 
     register(email, password).then(
       (response) => {
-        setMessage(response.data.message);
         setSuccessful(true);
         navigate("/login");
         window.location.reload();
