@@ -37,6 +37,7 @@ const CheckPage: FC = () => {
         .then((response) => response.json())
         .then((json) => {
           json.filter((test) => test.manualCheck == true);
+          console.log(json);
           setTests(json);
           getManualChecks(json);
         });
@@ -50,7 +51,7 @@ const CheckPage: FC = () => {
   async function getManualChecks(json: any) {
     try {
       const response = await fetch(
-        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/ManualCheck/${json[1].id}`,
+        `https://constructor-dev-ed2c.onrender.com/api/v1/operationsOnTest/ManualCheck/${json[0].id}`,
         {
           method: "GET",
           credentials: "include",
@@ -96,11 +97,11 @@ const CheckPage: FC = () => {
             {checks.map((response: ResponseRender, index) => {
               return (
                 <tr>
-                  <td>{tests[1].title}</td>
+                  <td>{tests[0].title}</td>
                   <td>
                     <Button
                       onClick={() =>
-                        goCheckSolution(checks[index].userid, tests[1].id)
+                        goCheckSolution(checks[index].userid, tests[0].id)
                       }
                     >
                       Ручная проверка
