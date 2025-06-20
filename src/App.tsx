@@ -13,7 +13,6 @@ import MainPage from "./pages/MainPage/MainPage";
 import Stats from "./pages/Stats/Stats";
 import CheckPage from "./pages/CheckPage/CheckPage";
 import CheckForm from "./pages/CheckForm/CheckForm";
-import { Checking } from "./pages/checking/Checking";
 import { Test } from "./pages/Test/Test";
 import { TestConstructor } from "./pages/TestConstructor/TestConstructor";
 
@@ -52,7 +51,6 @@ function App() {
       <Route path="/check/" element={<CheckPage />} />
       <Route path="/check/:id" element={<CheckForm />} />
       <Route path="/test/:id" element={<Test />} />
-      <Route path="/checking/" element={<Checking />} />
     </Routes>
   );
 }
