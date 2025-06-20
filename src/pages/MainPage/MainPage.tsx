@@ -96,10 +96,7 @@ const MainPage: FC = () => {
                 >
                   Удалить тест
                 </Button>
-                <Button
-                  to={`http://localhost:5173/test/${form.id}`}
-                  className={styles["test-btn"]}
-                >
+                <Button to={`/test/${form.id}`} className={styles["test-btn"]}>
                   Переход на тест
                 </Button>
                 <Button
