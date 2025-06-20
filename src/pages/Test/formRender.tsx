@@ -56,13 +56,9 @@ function FormRenderer({
   const navigate = useNavigate();
   const params = useParams();
 
-  useEffect(() => {
-    console.log(formData);
-  }, []);
-
+  // Отправка ответов на тест
   async function postSolution(formResponses: any) {
     try {
-      console.log(formResponses);
       const response = await fetch(
         `https://constructor-dev-ed2c.onrender.com/api/v1/UserSolution/${params.id}`,
         {
@@ -76,11 +72,11 @@ function FormRenderer({
       );
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     }
   }
 
+  // Сохранение ответа на тест
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formResponse = {
@@ -94,6 +90,7 @@ function FormRenderer({
     postSolution(formResponse);
   };
 
+  // Изменение ответа на вопрос с вводом ответа
   const handleResponseChange = (questionIndex: number, e: any) => {
     const updatedResponses = [...formResponses];
     updatedResponses[questionIndex] = {
@@ -103,6 +100,7 @@ function FormRenderer({
     setFormResponses((updatedrespose) => (updatedrespose = updatedResponses));
   };
 
+  // Изменение ответа на вопрос с выбором нескольких ответов
   const handleMultipleChange = (
     questionIndex: number,
     option: string,
@@ -127,6 +125,7 @@ function FormRenderer({
     }
   };
 
+  // Запись данных тестируемого
   const handleNameChange = (value: string) => {
     setName((prevName) => (prevName = value));
   };

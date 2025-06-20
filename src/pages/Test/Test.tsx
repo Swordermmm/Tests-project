@@ -7,6 +7,7 @@ export const Test: FC = () => {
   const [showResponse, setShowResponse] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Приведение массива к нормальному виду
   function normaliseFormRespone() {
     let newResponse: IAnswer[] = [];
     for (var question of form.questions) {
@@ -52,6 +53,7 @@ export const Test: FC = () => {
 
   const params = useParams();
 
+  // Получение теста по Id
   async function getTest() {
     try {
       const response = await fetch(
@@ -70,17 +72,18 @@ export const Test: FC = () => {
         });
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     } finally {
       setLoading(false);
     }
   }
 
+  // Запрос при загрузке страницы
   useEffect(() => {
     getTest();
   }, []);
 
+  // Загрузка данных, затем показ теста
   if (form && !loading) {
     return (
       <FormRenderer

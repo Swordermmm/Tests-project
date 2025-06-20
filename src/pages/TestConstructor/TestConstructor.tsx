@@ -72,12 +72,14 @@ export const TestConstructor: FC = () => {
     minutes: number;
     seconds: number;
   }
+
   const [timerValues, setTimerValues] = useState<timerValues>({
     hours: 0,
     minutes: 0,
     seconds: 0,
   });
 
+  // Определяется, редактирование или создание теста, здесь же происходит расчёт значений таймера в секунды
   useEffect(() => {
     localStorage.setItem("forms", JSON.stringify(form));
     if (!isLoaded) {
@@ -91,20 +93,7 @@ export const TestConstructor: FC = () => {
     );
   }, [form, timerValues]);
 
-  const handleQuestionTextChange = (questionId: number, value: string) => {
-    setForms(
-      (prevForm) =>
-        (prevForm = {
-          ...prevForm,
-          questions: prevForm.questions.map((question, index) =>
-            index === questionId
-              ? { ...question, questionText: value }
-              : question
-          ),
-        })
-    );
-  };
-
+  // Название теста
   const handleTitleTextChange = (value: string) => {
     setForms(
       (prevForms) =>
@@ -115,6 +104,18 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Описание теста
+  const handleDescTextChange = (value: string) => {
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          description: value,
+        })
+    );
+  };
+
+  // Настройка таймера
   const handleTimerChange = (value: number, word: string) => {
     let updatedValues: timerValues = { hours: 0, minutes: 0, seconds: 0 };
     if (word === "hours")
@@ -150,6 +151,7 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Порог по баллам
   const handleScoreChange = (value: number) => {
     setForms(
       (prevForms) =>
@@ -160,6 +162,7 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Сообщение при хорошем результате
   const handleGoodMessageChange = (value: string) => {
     setForms(
       (prevForms) =>
@@ -170,6 +173,7 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Сообщение при плохом результате
   const handleBadMessageChange = (value: string) => {
     setForms(
       (prevForms) =>
@@ -180,16 +184,22 @@ export const TestConstructor: FC = () => {
     );
   };
 
-  const handleDescTextChange = (value: string) => {
+  // Описание задания
+  const handleQuestionTextChange = (questionId: number, value: string) => {
     setForms(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          description: value,
+      (prevForm) =>
+        (prevForm = {
+          ...prevForm,
+          questions: prevForm.questions.map((question, index) =>
+            index === questionId
+              ? { ...question, questionText: value }
+              : question
+          ),
         })
     );
   };
 
+  // Тип задания
   const handleAnswerTypeChange = (questionId: number, value: number) => {
     if (value === 2) {
       setForms(
@@ -243,6 +253,7 @@ export const TestConstructor: FC = () => {
     }
   };
 
+  // Значение варианта ответа
   const handleOptionChange = (
     questionId: string,
     optionIndex: number,
@@ -266,12 +277,12 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Выбор правильных ответов на задание с несколькими вариантами ответов
   const handleMultipleAnswersChange = (
     questionId: string,
     optionIndex: number,
     isChecked: boolean
   ) => {
-    console.log(form);
     if (isChecked) {
       setForms(
         (prevForms) =>
@@ -314,6 +325,7 @@ export const TestConstructor: FC = () => {
     }
   };
 
+  // Правильный ответ на задание с коротким вводом ответа
   const handleAnswerChange = (questionId: number, value: string) => {
     setForms(
       (prevForms) =>
@@ -336,6 +348,7 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Кол-во баллов за задание
   const handleMarkChange = (questionId: number, value: number) => {
     setForms(
       (prevForms) =>
@@ -353,6 +366,7 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Добавление варианта ответа
   const handleAddOption = (questionId: string) => {
     setForms(
       (prevForms) =>
@@ -367,6 +381,7 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Создание вопроса
   const handleAddQuestion = () => {
     const newQuestion: Question = {
       questionText: "",
@@ -381,6 +396,7 @@ export const TestConstructor: FC = () => {
     );
   };
 
+  // Удаление вопроса
   const handleDeleteQuestion = (questionId: number) => {
     setForms(
       (prevForms) =>
@@ -395,11 +411,12 @@ export const TestConstructor: FC = () => {
 
   const [showModal, toggleModal] = useState<boolean>(false);
 
+  // Показ модального окна с настройками теста
   const handleToggleModal = () => {
-    console.log(form, isEdit);
     toggleModal(!showModal);
   };
 
+  // Публикация теста
   async function postTest(newForm: Form) {
     try {
       const response = await fetch(
@@ -420,6 +437,7 @@ export const TestConstructor: FC = () => {
     }
   }
 
+  // Публикация отредактированного теста
   async function updateTest(newForm: Form) {
     try {
       const response = await fetch(
@@ -434,13 +452,13 @@ export const TestConstructor: FC = () => {
           },
         }
       );
-      console.log(newForm);
       return response;
     } catch (error) {
       return "";
     }
   }
 
+  // Получение теста при условии, что это редактирование
   async function getTest() {
     try {
       const response = await fetch(
@@ -474,6 +492,7 @@ export const TestConstructor: FC = () => {
     }
   }
 
+  // Нормализация массива для редактирования
   const backToNormal = (questions: any) => {
     let newQuestions: Question[] = [];
 
@@ -511,7 +530,6 @@ export const TestConstructor: FC = () => {
           createAnswer: {},
         };
       } else {
-        console.log(question);
         newQuestion = {
           questionText: question.questionText,
           type: questionType,
@@ -527,6 +545,7 @@ export const TestConstructor: FC = () => {
     return newQuestions;
   };
 
+  // Сохранение нового или отредактированного теста и переход обратно на главную страницу
   const handleSaveForm = () => {
     form.timerInSeconds = String(timer);
 

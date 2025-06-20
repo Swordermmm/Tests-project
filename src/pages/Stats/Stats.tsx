@@ -33,6 +33,7 @@ const Stats: FC = () => {
   const [stats, setStats] = useState<Stat[]>([]);
   const [filteredSubjects, setFilters] = useState<Stat[]>([]);
 
+  // Получение статистики
   async function getStats() {
     try {
       const response = await fetch(
@@ -50,21 +51,19 @@ const Stats: FC = () => {
           setStats(json);
           setFilters(json);
         });
-      console.log(response);
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     } finally {
       isLoading(false);
     }
   }
 
+  // Запрос при загрузке страницы и применение фильтров
   useEffect(() => {
     if (loading) {
       getStats();
     }
-    console.log(stats);
     if (stats.length > 0) {
       let filteredData = [...stats];
       if (name) {

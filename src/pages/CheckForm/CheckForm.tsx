@@ -25,6 +25,7 @@ const CheckForm: FC = () => {
   const navigate = useNavigate();
   const user: string = JSON.parse(localStorage.getItem("test"));
 
+  // Получение теста по id
   async function getTest() {
     try {
       const response = await fetch(
@@ -48,6 +49,7 @@ const CheckForm: FC = () => {
     }
   }
 
+  // Получение ручной игроки того пользователя, по ссылке которого мы перешли
   async function getManualChecks() {
     try {
       const response = await fetch(
@@ -76,6 +78,7 @@ const CheckForm: FC = () => {
     }
   }
 
+  // Отправка результата ручной проверки на сервер
   async function postManualChecks(checkedResponse: any) {
     try {
       const response = await fetch(
@@ -96,6 +99,7 @@ const CheckForm: FC = () => {
     }
   }
 
+  // Запросы при загрузке страницы
   useEffect(() => {
     getTest();
     getManualChecks();
@@ -108,10 +112,9 @@ const CheckForm: FC = () => {
         ind == index ? (mark = Number(number)) : mark
       )
     );
-    console.log(mark);
   };
 
-  // Отвечает за сохранение проверки
+  // Отвечает за сохранение и отправку проверки
   const handleCheckSubmit: any = (e: any) => {
     e.preventDefault();
     let markedQuestions: any = [];

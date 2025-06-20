@@ -22,6 +22,7 @@ const CheckPage: FC = () => {
   const [checks, setChecks] = useState<[]>([]);
   const navigate = useNavigate();
 
+  // Получение всех тестов пользователя, требующие ручной проверки
   async function getTests() {
     try {
       const response = await fetch(
@@ -37,7 +38,6 @@ const CheckPage: FC = () => {
         .then((response) => response.json())
         .then((json) => {
           json.filter((test) => test.manualCheck == true);
-          console.log(json);
           setTests(json);
           getManualChecks(json);
         });
@@ -48,6 +48,7 @@ const CheckPage: FC = () => {
     }
   }
 
+  // Получение ответов, требующих ручной проверки
   async function getManualChecks(json: any) {
     try {
       const response = await fetch(
@@ -71,11 +72,13 @@ const CheckPage: FC = () => {
     }
   }
 
+  // Переход для проверки ответа + запоминание какого пользователя мы проверяем
   const goCheckSolution = (user: string, testId: string) => {
     localStorage.setItem("test", JSON.stringify(user));
     navigate("/check/" + testId);
   };
 
+  // Запрос при загрузке страницы
   useEffect(() => {
     getTests();
   }, []);

@@ -17,15 +17,19 @@ const MainPage: FC = () => {
   const [tests, setTests] = useState([]);
 
   let navigate = useNavigate();
+
+  // Создание теста
   const handleCreateForm = () => {
     const id = uuid();
     navigate("/form/" + id);
   };
 
+  // Редактирование теста
   const handleLookForm = (form: Test) => {
     navigate("/form/" + form.id);
   };
 
+  // Получение всех тестов
   async function getTests() {
     try {
       const response = await fetch(
@@ -44,11 +48,11 @@ const MainPage: FC = () => {
         });
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     }
   }
 
+  // Удаление теста
   async function deleteTest(testId: string) {
     try {
       const response = await fetch(
@@ -64,11 +68,11 @@ const MainPage: FC = () => {
       getTests();
       return response;
     } catch (error) {
-      console.log(error);
       return "";
     }
   }
 
+  // Запрос при загрузке страницы
   useEffect(() => {
     getTests();
   }, []);
