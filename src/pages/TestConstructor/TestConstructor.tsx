@@ -476,6 +476,7 @@ export const TestConstructor: FC = () => {
 
   const backToNormal = (questions: any) => {
     let newQuestions: Question[] = [];
+
     for (var question of questions) {
       let questionType: number = 0;
       switch (question.type) {
@@ -510,18 +511,19 @@ export const TestConstructor: FC = () => {
           createAnswer: {},
         };
       } else {
+        console.log(question);
         newQuestion = {
           questionText: question.questionText,
           type: questionType,
-          answerOptions: question.correctAnswers.answerOptions,
           createAnswer: {
-            textAnswer: question.answers.answerOptions,
+            textAnswer: question.correctAnswers.answerOptions[0],
           },
           mark: question.mark,
         };
       }
       newQuestions.push(newQuestion);
     }
+
     return newQuestions;
   };
 
